@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cambiar Contraseña - Vecinos Unidos{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Cambiar Contraseña</h2>
+                    <form>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_contrasena_actual" class="form-label">Contraseña Actual</label>
+                            <input type="password" class="form-control" id="id_contrasena_actual" placeholder="Ingresa tu contraseña actual">
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_nueva_contrasena" class="form-label">Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="id_nueva_contrasena" placeholder="Ingresa la nueva contraseña">
+                        </div>
+                        <div class="mb-4">
+                            <label for="id_confirmar_contrasena" class="form-label">Confirmar Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="id_confirmar_contrasena" placeholder="Confirma la nueva contraseña">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Actualizar Contraseña</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

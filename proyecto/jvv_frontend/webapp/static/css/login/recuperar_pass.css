@@ -1,0 +1,118 @@
+/* Estilos para recuperación unificada */
+.recovery-step {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.recovery-step.active {
+    display: block;
+}
+
+.step-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 1rem;
+}
+
+.step-badge {
+    background: #0d6efd;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.step-title {
+    color: #495057;
+    margin: 0.5rem 0 0 0;
+    font-weight: 600;
+}
+
+.password-strength .progress {
+    background-color: #e9ecef;
+    border-radius: 2px;
+}
+
+.password-strength .progress-bar {
+    transition: width 0.3s ease;
+}
+
+.password-weak {
+    background-color: #dc3545;
+}
+
+.password-medium {
+    background-color: #ffc107;
+}
+
+.password-strong {
+    background-color: #198754;
+}
+
+.password-very-strong {
+    background-color: #0d6efd;
+}
+
+/* Indicador de coincidencia de contraseñas */
+.password-match {
+    color: #198754;
+    font-weight: 600;
+}
+
+.password-mismatch {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* Contador regresivo */
+.countdown-warning {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.countdown-normal {
+    color: #6c757d;
+}
+
+/* Estados de los inputs */
+.input-group .form-control:focus {
+    z-index: 3;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .recovery-step {
+        padding: 0 0.5rem;
+    }
+    
+    .step-header {
+        text-align: center;
+    }
+}

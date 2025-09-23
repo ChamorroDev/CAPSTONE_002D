@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Sección de Cabecera con Banner -->
+<div class="position-relative text-white p-5 text-center" style="background: url('{% static 'img/mi barrio/eventos.png' %}') no-repeat center center; background-size: cover; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+    <div class="overlay-bg position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+    <div class="position-relative z-index-1">
+        <h1 class="display-4 fw-bold mb-3">Eventos de la Comunidad</h1>
+        <p class="lead mb-4">Mantente al día con lo que sucede en tu barrio.</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-5 order-lg-2 calendar-container">
+            <div class="card shadow-sm p-3 p-md-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 mb-md-4">
+                    <button class="btn btn-outline-primary calendar-nav-btn prev-month">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <h4 class="mb-0 fw-bold text-primary fs-5 fs-md-4" id="current-month">Cargando...</h4>
+                    <button class="btn btn-outline-primary calendar-nav-btn next-month">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="calendar-grid text-center" id="calendar-grid">
+                    <div class="fw-bold">Lun</div>
+                    <div class="fw-bold">Mar</div>
+                    <div class="fw-bold">Mié</div>
+                    <div class="fw-bold">Jue</div>
+                    <div class="fw-bold">Vie</div>
+                    <div class="fw-bold">Sáb</div>
+                    <div class="fw-bold">Dom</div>
+                </div>
+                
+                <hr class="my-3 my-md-4">
+                <div class="d-grid gap-2 mb-3">
+                    <button class="btn d-none fw-semibold" id="btn-quitar-filtro">
+                        <i class="bi bi-x-circle me-1"></i> 
+                        <span class="d-none d-md-inline">Quitar Filtro</span>
+                    </button>
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-lg fw-bold" id="btn-ver-todos">
+                        <i class="bi bi-calendar3 me-1"></i> 
+                        <span>Ver Todos</span>
+                    </button>
+                    <button class="btn btn-outline-primary btn-lg fw-bold" id="btn-inscripciones">
+                        <i class="bi bi-ticket-perforated me-1"></i> 
+                        <span>Mis Inscripciones</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna de la Lista de Eventos -->
+        <div class="col-lg-7 order-lg-1">
+            <h2 class="mb-3 mb-md-4 fs-4 fs-md-3">Próximos Eventos</h2>
+            <div id="eventos-container">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="text-muted mt-2">Cargando eventos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para detalles del evento -->
+<div class="modal fade" id="eventoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventoModalTitle">Detalles del Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="eventoModalBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btn-inscribirse">Inscribirse</button>
+                <button type="button" class="btn btn-danger d-none" id="btn-cancelar">Cancelar Inscripción</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Mis Inscripciones -->
+<div class="modal fade" id="inscripcionesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-ticket-perforated"></i> Mis Inscripciones
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="inscripciones-container">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="text-muted mt-2">Cargando tus inscripciones...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Acompañantes -->
+<div class="modal fade" id="acompanantesModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gestionar Acompañantes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="acompanantesModalBody">
+                <!-- Formulario dinámico para acompañantes -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirmar-inscripcion">Confirmar Inscripción</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/vecino/ver_eventos.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/vecinos/eventos.css' %}">
+
+{% endblock %}

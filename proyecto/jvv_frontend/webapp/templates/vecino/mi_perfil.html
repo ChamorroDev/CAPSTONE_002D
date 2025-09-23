@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil - Junta de Vecinos{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/vecinos/mi_perfil.css' %}">
+
+<div class="container-fluid px-4 py-4">
+    <div id="perfil-content">
+        <!-- Loading State -->
+        <div class="text-center py-5" id="loading-spinner">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 text-muted">Cargando tu perfil...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="auth-error" class="alert alert-danger d-none">
+            <div class="text-center">
+                <i class="bi bi-shield-exclamation" style="font-size: 3rem;"></i>
+                <h4 class="mt-3">Error de acceso</h4>
+                <p id="error-message">No se pudieron cargar los datos del perfil</p>
+                <div class="mt-3">
+                    <a href="{% url 'index' %}" class="btn btn-primary me-2">
+                        <i class="bi bi-house"></i> Volver al inicio
+                    </a>
+                    <button onclick="window.location.reload()" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-clockwise"></i> Reintentar
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Success State -->
+        <div id="perfil-data" class="d-none fade-in">
+            <!-- Header con gradiente -->
+            <div class="dashboard-header mb-5">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="welcome-section">
+                            <h1 class="welcome-title">
+                                <span class="greeting">Mi Perfil</span>
+                            </h1>
+                            <p class="welcome-subtitle">
+                                <i class="bi bi-person-gear"></i> Gestiona tu información personal y seguridad
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="status-badge">
+                            <i class="bi bi-patch-check-fill"></i>
+                            <span>Cuenta Verificada</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Columna izquierda: Información personal -->
+                <div class="col-lg-4">
+                    <!-- Tarjeta de avatar e información básica -->
+                    <div class="dashboard-card profile-card mb-4">
+                        <div class="card-header-gradient">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-3">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-0">Mi Cuenta</h5>
+                                    <small class="text-white-50">Información básica</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="avatar-large mb-3">
+                                <i class="bi bi-person-circle"></i>
+                            </div>
+                            <h4 id="profile-name" class="mb-2">Cargando...</h4>
+                            <p class="text-muted mb-3" id="profile-email">Cargando...</p>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <i class="bi bi-calendar-check"></i>
+                                    <span>Miembro desde</span>
+                                    <strong id="member-since">...</strong>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="bi bi-shield-check"></i>
+                                    <span>Estado</span>
+                                    <strong class="text-success">Activo</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones rápidas -->
+                    <div class="dashboard-card quick-actions-card">
+                        <div class="card-header-light">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-lightning-charge"></i> Acciones Rápidas
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions-grid">
+                                <button class="quick-action-item" id="btn-editar-perfil">
+                                    <div class="action-icon editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </div>
+                                    <span class="action-text">Editar Perfil</span>
+                                    <i class="bi bi-arrow-right-short action-arrow"></i>
+                                </button>
+                                
+                                <button class="quick-action-item" id="btn-cambiar-password">
+                                    <div class="action-icon seguridad">
+                                        <i class="bi bi-shield-lock"></i>
+                                    </div>
+                                    <span class="action-text">Cambiar Contraseña</span>
+                                    <i class="bi bi-arrow-right-short action-arrow"></i>
+                                </button>
+                                
+                                <a href="{% url 'eventos' %}" class="quick-action-item">
+                                    <div class="action-icon eventos">
+                                        <i class="bi bi-calendar-event"></i>
+                                    </div>
+                                    <span class="action-text">Mis Inscripciones</span>
+                                    <i class="bi bi-arrow-right-short action-arrow"></i>
+                                </a>
+                                
+                                <a href="{% url 'index' %}" class="quick-action-item">
+                                    <div class="action-icon volver">
+                                        <i class="bi bi-house"></i>
+                                    </div>
+                                    <span class="action-text">Volver al Inicio</span>
+                                    <i class="bi bi-arrow-right-short action-arrow"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: Información detallada -->
+                <div class="col-lg-8">
+                    <!-- Información de contacto -->
+                    <div class="dashboard-card contact-card mb-4">
+                        <div class="card-header-light d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-person-lines-fill"></i> Información de Contacto
+                            </h5>
+                            <button class="btn btn-sm btn-outline-primary" id="btn-editar-contacto">
+                                <i class="bi bi-pencil"></i> Editar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="contact-info-grid">
+                                <div class="contact-item">
+                                    <i class="bi bi-person-vcard"></i>
+                                    <div>
+                                        <label>Nombre Completo</label>
+                                        <p id="info-nombre-completo">Cargando...</p>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="bi bi-envelope-at"></i>
+                                    <div>
+                                        <label>Correo Electrónico</label>
+                                        <p id="info-email-detalle">Cargando...</p>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="bi bi-telephone"></i>
+                                    <div>
+                                        <label>Teléfono</label>
+                                        <p id="info-telefono">No especificado</p>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="bi bi-house-door"></i>
+                                    <div>
+                                        <label>Dirección</label>
+                                        <p id="info-direccion">No especificado</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de la cuenta -->
+                    <div class="dashboard-card account-card">
+                        <div class="card-header-light">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-info-circle"></i> Información de la Cuenta
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="account-info-grid">
+                                <div class="account-item">
+                                    <i class="bi bi-person-badge"></i>
+                                    <div>
+                                        <label>Nombre de Usuario</label>
+                                        <p id="info-username">Cargando...</p>
+                                    </div>
+                                </div>
+                                <div class="account-item">
+                                    <i class="bi bi-calendar-plus"></i>
+                                    <div>
+                                        <label>Fecha de Registro</label>
+                                        <p id="info-fecha-registro">Cargando...</p>
+                                    </div>
+                                </div>
+                                <div class="account-item">
+                                    <i class="bi bi-shield-check"></i>
+                                    <div>
+                                        <label>Estado de la Cuenta</label>
+                                        <p><span class="badge bg-success">Activa</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Perfil -->
+<div class="modal fade" id="modalEditarPerfil" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil me-2"></i>Editar Perfil
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarPerfil">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" name="first_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Apellido *</label>
+                                <input type="text" class="form-control" name="last_name" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Correo electrónico *</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" name="telefono" placeholder="+56 9 1234 5678">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Dirección</label>
+                        <textarea class="form-control" name="direccion" rows="3" placeholder="Ingresa tu dirección completa"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-guardar-perfil">
+                    <i class="bi bi-check-lg me-1"></i>Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cambiar Contraseña -->
+<div class="modal fade" id="modalCambiarPassword" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-shield-lock me-2"></i>Cambiar Contraseña
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCambiarPassword">
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña actual *</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="old_password" id="old_password" required>
+                            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="old_password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Nueva contraseña *</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="new_password1" id="new_password1" required>
+                            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="new_password1">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">La contraseña debe tener al menos 8 caracteres.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Confirmar nueva contraseña *</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="new_password2" id="new_password2" required>
+                            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="new_password2">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-guardar-password">
+                    <i class="bi bi-key me-1"></i>Cambiar Contraseña
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/vecino/mi_perfil.js' %}"></script>
+{% endblock %}

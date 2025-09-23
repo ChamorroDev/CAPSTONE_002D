@@ -1,0 +1,297 @@
+/* ==================================== */
+/*             BASE STYLES             */
+/* ==================================== */
+
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #64748b;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --info-color: #06b6d4;
+    --light-bg: #f8fafc;
+    --card-bg: #fff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: var(--light-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* ==================================== */
+/*             NAVBAR STYLES           */
+/* ==================================== */
+
+.navbar {
+    background: var(--primary-color) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+.navbar .navbar-brand {
+    color: #fff !important;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.navbar-nav .nav-link {
+    color: #e2e8f0 !important;
+    font-weight: 500;
+    margin-right: 0.5rem;
+    transition: color 0.2s;
+}
+
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:hover {
+    color: var(--accent-color) !important;
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.navbar-toggler-icon {
+    filter: invert(1);
+}
+
+#navbar-auth-section .text-white {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(30,41,59,0.15);
+}
+
+#navbar-auth-section .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    font-size: 0.875rem; /* Ajusta el tamaño de la fuente para botones más pequeños */
+}
+
+#navbar-auth-section .btn-light {
+    background: #fff;
+    color: var(--primary-color);
+    border: none;
+}
+
+#navbar-auth-section .btn-light:hover {
+    background: var(--accent-color);
+    color: #fff;
+}
+
+#navbar-auth-section .btn-secondary {
+    background: var(--secondary-color);
+    color: #fff;
+    border: none;
+}
+
+#navbar-auth-section .btn-secondary:hover {
+    background: #525f77;
+}
+
+/* Estilo para el botón de cerrar sesión */
+#navbar-auth-section .btn-outline-light {
+    border: 1.5px solid #fff;
+    color: #fff;
+    background: transparent;
+}
+
+#navbar-auth-section .btn-outline-light:hover {
+    background: #fff;
+    color: var(--primary-color);
+}
+
+/* ==================================== */
+/*               FOOTER               */
+/* ==================================== */
+
+footer {
+    background: var(--primary-color);
+    color: #fff;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    border-top: 4px solid var(--accent-color);
+}
+
+footer a,
+footer .text-muted {
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: var(--accent-color) !important;
+    text-decoration: underline;
+}
+
+footer h5 {
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+footer .bi {
+    color: #fff;
+    margin-right: 0.5rem;
+}
+
+footer hr {
+    border-color: #64748b;
+    opacity: 0.3;
+}
+
+footer .text-center p {
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+/* ==================================== */
+/*           CARD & BUTTONS          */
+/* ==================================== */
+
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: none;
+    background: var(--card-bg);
+    margin-bottom: 1.5rem;
+    transition: box-shadow 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+}
+
+.card-header {
+    background: var(--light-bg);
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.card-header .card-title {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.card-header .btn {
+    margin-left: auto;
+    font-size: 0.95rem;
+    padding: 0.35rem 1rem;
+}
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-outline-primary {
+    border: 1.5px solid var(--primary-color);
+    color: var(--primary-color);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+/* ==================================== */
+/*           OTROS ELEMENTOS          */
+/* ==================================== */
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stats-number.text-warning {
+    color: var(--accent-color);
+}
+
+.stats-number.text-success {
+    color: var(--success-color);
+}
+
+#user-info {
+    background: #f1f5f9;
+    padding: 1.2rem;
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-color);
+}
+
+#user-info p {
+    margin-bottom: 0.5rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1rem;
+}
+
+#user-info p:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+#user-info strong {
+    color: var(--primary-color);
+    min-width: 90px;
+    display: inline-block;
+}
+
+.badge {
+    border-radius: 12px;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.badge.bg-info {
+    background: var(--info-color);
+    color: #fff;
+}
+
+/* ==================================== */
+/*           MOBILE RESPONSIVE          */
+/* ==================================== */
+
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    .stats-number {
+        font-size: 1.3rem;
+    }
+    .navbar-nav .nav-item {
+        width: 100%;
+        margin-right: 0;
+        text-align: center;
+    }
+}
