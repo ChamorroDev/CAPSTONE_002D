@@ -1,6 +1,42 @@
-Junta360 Digital
-Descripción del Proyecto
-CAPSTONE_002D grupo 3
+# 📌 Junta360 Digital  
 
-Integrantes del Grupo
-Alexander Chamorro
+## 📖 Descripción del Proyecto  
+**Junta360 Digital** es una plataforma web diseñada para la gestión comunitaria, permitiendo a los usuarios navegar, registrarse, interactuar con vecinos  y entregar reportes de apoyo a directivos.  
+Este proyecto corresponde al **CAPSTONE_002D – Grupo 3**.  
+
+---
+
+## 👥 Integrantes del Grupo  
+- Alexander Chamorro  
+
+---
+
+## 🚀 Funcionalidades Principales  
+- Registro y autenticación de usuarios.  
+- Publicación y visualización de eventos comunitarios.  
+- Panel de gestión para directivos.  
+- Espacio de colaboración con vecinos aliados.  
+- Reportes y estadísticas para toma de decisiones.  
+
+---
+
+## 🛠️ Tecnologías Utilizadas  
+- **Frontend:** DJANGO 
+- **Backend:** DJANGO
+- **Base de Datos:** SQLlite3  
+- **Control de Versiones:** GitHub  
+- **Herramientas de Diseño:** Figma, Lucidchart , STARUML
+
+---
+
+## 📂 Estructura del Repositorio  
+```bash
+├── /frontend       # Código del cliente (React)
+├── /backend        # API y lógica de negocio (Node.js + Express)
+└── README.md       # Documento principal del proyecto
+⚙️ Instalación y Configuración
+
+
+
+📄 Licencia
+Este proyecto está bajo la licencia MIT.
