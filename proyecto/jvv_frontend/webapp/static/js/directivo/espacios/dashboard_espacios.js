@@ -263,17 +263,26 @@ class DirectivoDashboard {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({})
                 });
 
                 if (response.ok) {
                     this.mostrarMensaje('Solicitud aprobada correctamente', 'success');
-                    bootstrap.Modal.getInstance(document.getElementById('modalDetallesSolicitud')).hide();
+                    const modalElement = document.getElementById('modalDetallesSolicitud');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+
                     await this.cargarDatosIniciales();
+
                 } else {
-                    throw new Error('Error al aprobar solicitud');
+                    const errorData = await response.json();
+                    this.mostrarMensaje(errorData.error, 'error');
                 }
-            } catch (error) {
+            } catch (error) {  
+                console.error('Error aprobando solicitud:', error);
                 this.mostrarMensaje('Error al aprobar solicitud', 'error');
             }
         }
@@ -301,7 +310,11 @@ class DirectivoDashboard {
 
             if (response.ok) {
                 this.mostrarMensaje('Solicitud rechazada correctamente', 'success');
-                bootstrap.Modal.getInstance(document.getElementById('modalDetallesSolicitud')).hide();
+                const modalElement = document.getElementById('modalDetallesSolicitud');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
                 await this.cargarDatosIniciales();
             } else {
                 throw new Error('Error al rechazar solicitud');

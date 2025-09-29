@@ -3,7 +3,7 @@ import io
 import os
 import base64
 import json
-import re # Importamos el módulo de expresiones regulares
+import re 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -19,8 +19,7 @@ import io
 import os
 import base64
 import json
-import re # Importamos el módulo de expresiones regulares
-from rest_framework.decorators import api_view, permission_classes
+import re 
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q
@@ -33,14 +32,11 @@ from reportlab.lib.units import cm
 from django.utils.timezone import now
 
 def generar_certificado_pdf_vecino(usuario, motivo_solicitud):
-    """
-    Genera un PDF de certificado de residencia para un usuario.
-    """
+
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
-    # Obtener los datos de la junta desde la base de datos
     junta_vecinos = JuntaVecinos.objects.first()
     junta_de_vecinos_nombre = junta_vecinos.nombre if junta_vecinos else '[Nombre de la Junta]'
     junta_de_vecinos_comuna = junta_vecinos.comuna if junta_vecinos else '[Nombre de la Comuna]'

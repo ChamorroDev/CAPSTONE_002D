@@ -25,9 +25,7 @@ class EsRegistrado(permissions.BasePermission):
                 request.user.rol == 'registrado')
 
 class EsVecinoOdirector(permissions.BasePermission):
-    """
-    Permite el acceso a usuarios con el rol de 'vecino' o 'directivo'.
-    """
+
     def has_permission(self, request, view):
         return (request.user.is_authenticated and 
                 hasattr(request.user, 'rol') and

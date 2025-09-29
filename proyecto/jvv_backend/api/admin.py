@@ -35,7 +35,6 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-# Registrar los demás modelos
 admin.site.register(JuntaVecinos)
 admin.site.register(Noticia)
 admin.site.register(NoticiaImagen)

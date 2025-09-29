@@ -1,223 +1,43 @@
+import io
+import json
 import requests
-from django.http import HttpResponse, JsonResponse
+import traceback
+import re
+from datetime import datetime, time
+
+from PIL import Image
+
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
+from django.db import IntegrityError
+from django.db.models import Case, When, Value, ExpressionWrapper, FloatField, F, Q, Count
+from django.db.models.functions import ExtractYear, ExtractMonth
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+
+from rest_framework import status, generics, permissions
+from rest_framework.decorators import api_view, parser_classes, permission_classes
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
-from PIL import Image
-from django.db.models import Case, When, Value, ExpressionWrapper, FloatField, F
-from django.db.models.functions import ExtractYear, ExtractMonth
-import io
-import json
-from django.conf import settings 
-from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
-from .certificado import generar_certificado_pdf_vecino
-from django.db.models import Q
-import base64
-import traceback
-# views.py
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
-from django.db import IntegrityError
-from django.utils import timezone
-from django.utils import timezone
-from datetime import datetime
-from django.utils.timezone import now
-from django.db.models.functions import ExtractMonth
-from django.contrib.auth.hashers import make_password
-from django.http import Http404, HttpResponse
-from rest_framework.views import APIView
-from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
-from rest_framework import status
+
 from .models import *
 from .serializers import *
-import re
-from django.db.models import Count
-from datetime import datetime, time
-# ----- RESPUESTAS JSON -----
-
-class JSONResponseOkRows(HttpResponse):
-    def __init__(self, data, msg, **kwargs):
-        data = {"OK": True, "count": len(data), "registro": data, "msg": msg}
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super().__init__(content, **kwargs)
-
-class JSONResponseOk(HttpResponse):
-    def __init__(self, data, msg, **kwargs):
-        data = {"OK": True, "count": 1, "registro": data, "msg": msg}
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super().__init__(content, **kwargs)
-
-class JSONResponseErr(HttpResponse):
-    def __init__(self, data, **kwargs):
-        data = {"OK": False, "count": 0, "msg": data}
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super().__init__(content, **kwargs)
-# ===================== BASES GENÉRICAS PARA EVITAR REPETIR =====================
-
-
-def generar_certificado_pdf(request):
-
-    buffer = io.BytesIO()
-
-
-    p = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-
-
-    p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2.0, height - 2*cm, "Certificado de Residencia")
-    
-    p.setFont("Helvetica", 12)
-    p.drawString(2*cm, height - 4*cm, "La Junta de Vecinos de [Nombre de la Junta] certifica que:")
-    
-
-    nombre_residente = "Juan Pérez"
-    p.drawString(3*cm, height - 5*cm, f"Don/Doña {nombre_residente}, R.U.N. [RUT del residente],")
-    
-
-    p.drawString(2*cm, height - 7*cm, "Reside en la dirección [Dirección completa] de la comuna de El Bosque, Santiago.")
-    p.drawString(2*cm, height - 8*cm, "Se extiende este certificado para los fines que estime convenientes.")
-    
-
-    firma_virtual_path = 'C:/Users/alexa/OneDrive/Documentos/duoc/Junta de vecinos/jvv_backend/media/firma.png'
-    try:
-    
-        p.drawImage(firma_virtual_path, 2*cm, 5*cm, width=4*cm, height=2*cm)
-    except FileNotFoundError:
-    
-        p.drawString(2*cm, 5*cm, "Firma no disponible.")
-
-
-    p.setFont("Helvetica", 10)
-    p.drawString(2*cm, 4.5*cm, "______________________")
-    p.drawString(2*cm, 4*cm, "Nombre del Presidente/a de la Junta de Vecinos")
-    p.drawString(2*cm, 3.5*cm, "R.U.T. del Presidente/a")
-    
-    p.showPage()
-    p.save()
-
-
-    buffer.seek(0)
-    
-
-    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="certificado_residencia.pdf"'
-    
-    return response
-
-
-
-
-N8N_EMAIL_WEBHOOK_URL = "https://alexander14.app.n8n.cloud/webhook-test/f676843e-e967-4abf-906b-8b0ee255d291"
-
-@csrf_exempt
-def enviar_correo(request):
-    if request.method == 'POST':
-        data_para_n8n = {
-            "to": "matiasxz14@gmail.com",
-            "subject": "Correo de prueba desde Django",
-            "body": "¡Este es un correo enviado usando Django y n8n!",
-        }
-
-        try:
-            response = requests.post(N8N_EMAIL_WEBHOOK_URL, json=data_para_n8n)
-            
-            response.raise_for_status()
-            
-            return JsonResponse({'status': 'Correo enviado correctamente'})
-
-        except requests.exceptions.RequestException as e:
-            return JsonResponse({'status': 'Error', 'message': str(e)}, status=500)
-    
-    return JsonResponse({'status': 'Error', 'message': 'Solo se permiten peticiones POST'}, status=405)
-
-
-# En tu archivo views.py
-import requests
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-
-N8N_WA_WEBHOOK_URL = "https://alexander14.app.n8n.cloud/webhook-test/7f27b483-3981-44ba-91aa-e881a81e2b1c"
-
-@csrf_exempt
-def enviar_whatsapp(request):
-    if request.method == 'POST':
-        data_para_n8n = {
-            "to_number": "+56985083641",
-            "message": "¡Hola!9899 Este es un mensaje de prueba enviado desde Django a través de n8n.",
-        }
-
-        try:
-            response = requests.post(N8N_WA_WEBHOOK_URL, json=data_para_n8n)
-            
-            response.raise_for_status()
-            
-            return JsonResponse({'status': 'Mensaje de WhatsApp enviado correctamente'})
-
-        except requests.exceptions.RequestException as e:
-            return JsonResponse({'status': 'Error', 'message': str(e)}, status=500)
-    
-    return JsonResponse({'status': 'Error', 'message': 'Solo se permiten peticiones POST'}, status=405)
-
-from rest_framework import generics, permissions, status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render, get_object_or_404
-from django.utils import timezone
-from django.db import transaction
-from django.contrib.auth import authenticate
-from .models import CustomUser, JuntaVecinos, Noticia, SolicitudCertificado, Actividad
-from .serializers import (UserSerializer, UserLoginSerializer, RegisterSerializer, 
-                         LoginSerializer, JuntaVecinosSerializer, NoticiaSerializer,
-                         SolicitudCertificadoSerializer, ActividadSerializer)
 from .permissions import EsAdministrador, EsDirectivo, EsVecino, PuedeGestionarNoticias, EsVecinoOdirector
-
-# ================= VISTAS PÚBLICAS (HTML) =================
-@csrf_exempt
-def index(request):
-    return render(request, 'index.html')
+from .certificado import generar_certificado_pdf_vecino
 
 
-@csrf_exempt
-def eventos(request):
-    return render(request, 'eventos.html')
 
-@csrf_exempt
-def contacto(request):
-    return render(request, 'contacto.html')
-
-@csrf_exempt
-def mi_barrio(request):
-    return render(request, 'mi_barrio.html')
-
-@csrf_exempt
-def login_view(request):
-    return render(request, 'login.html')
-
-@csrf_exempt
-def registro_vecino(request):
-    return render(request, 'registro.html')
-
-@csrf_exempt
-def vecino_dashboard(request):
-    return render(request, 'vecino_dashboard.html')
-
-@csrf_exempt
-def directivo_dashboard(request):
-    return render(request, 'directivo_dashboard.html')
-
-@csrf_exempt
-def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
 
 # ================= AUTENTICACIÓN =================
 
@@ -229,20 +49,16 @@ def login_api(request):
     """
     serializer = LoginSerializer(data=request.data)
     
-    # 1. Valida las credenciales (correo y contraseña)
     if serializer.is_valid():
         user = serializer.validated_data['user']
         
-        # 2. VERIFICACIÓN CLAVE: Si el rol del usuario es 'registrado',
-        #    significa que la cuenta está pendiente y se deniega el acceso.
         if user.rol == 'registrado':
             return Response(
                 {"error": "Tu cuenta está pendiente de aprobación por la administración."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
             
-        # 3. Si el rol es diferente de 'registrado' (por ejemplo, 'vecino', 'directivo', etc.),
-        #    se asume que el usuario ha sido aprobado y se procede con el login.
+
         refresh = RefreshToken.for_user(user)
         user_serializer = UserLoginSerializer(user)
         
@@ -252,7 +68,6 @@ def login_api(request):
             'user': user_serializer.data
         })
     
-    # 4. Si la validación falla (credenciales incorrectas), devuelve los errores del serializador
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -273,7 +88,6 @@ def current_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
-# ================= DASHBOARDS VECINO =================
 @api_view(['GET'])
 @permission_classes([EsVecinoOdirector])
 def vecino_dashboard_api(request):
@@ -285,13 +99,10 @@ def vecino_dashboard_api(request):
             es_publica=True
         ).order_by('-fecha_creacion')[:5]
         
-        # Solicitudes de certificados
         solicitudes_certificados = SolicitudCertificado.objects.filter(vecino=usuario)
         
-        # Solicitudes de espacios (nuevo)
         solicitudes_espacios = SolicitudEspacio.objects.filter(solicitante=usuario)
         
-        # Proyectos vecinales (nuevo)
         proyectos_vecinales = ProyectoVecinal.objects.filter(proponente=usuario)
         
         actividades = Actividad.objects.filter(
@@ -320,23 +131,19 @@ def vecino_dashboard_api(request):
                 for act in actividades
             ],
             'estadisticas': {
-                # Certificados
                 'certificados_totales': solicitudes_certificados.count(),
                 'certificados_pendientes': solicitudes_certificados.filter(estado='pendiente').count(),
                 'certificados_aprobados': solicitudes_certificados.filter(estado='aprobado').count(),
                 
-                # Espacios (nuevo)
                 'espacios_totales': solicitudes_espacios.count(),
                 'espacios_pendientes': solicitudes_espacios.filter(estado='pendiente').count(),
                 'espacios_aprobados': solicitudes_espacios.filter(estado='aprobado').count(),
                 
-                # Proyectos (nuevo)
                 'proyectos_totales': proyectos_vecinales.count(),
                 'proyectos_pendientes': proyectos_vecinales.filter(estado='pendiente').count(),
                 'proyectos_aprobados': proyectos_vecinales.filter(estado='aprobado').count(),
                 'proyectos_revision': proyectos_vecinales.filter(estado='revision').count(),
                 
-                # Totales generales
                 'solicitudes_totales': (solicitudes_certificados.count() + 
                                        solicitudes_espacios.count() + 
                                        proyectos_vecinales.count()),
@@ -369,7 +176,6 @@ def admin_dashboard_api(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# ================= GESTIÓN DE USUARIOS =================
 @api_view(['GET'])
 @permission_classes([EsAdministrador])
 def usuarios_por_junta(request):
@@ -445,24 +251,7 @@ def postular_proyecto(request):
     else:
         return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)   
 
-@api_view(['GET'])
-@permission_classes([EsVecinoOdirector])
-def vecino_proyectos(request):
-    # Validar que el usuario tenga una junta de vecinos
-    if not request.user.junta_vecinos:
-        return Response(
-            {'error': 'El usuario debe pertenecer a una junta de vecinos para ver sus proyectos.'},
-            status=status.HTTP_403_FORBIDDEN
-        )
 
-    # 1. Obtén el queryset
-    proyectos = ProyectoVecinal.objects.filter(proponente=request.user).order_by('-fecha_creacion')
-
-    # 2. Serializa el queryset
-    serializer = ProyectoVecinalSerializer(proyectos, many=True)
-
-    # 3. Devuelve una respuesta con los datos serializados
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
@@ -610,9 +399,6 @@ def detalle_actividad(request, actividad_id):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# views.py
-from django.db import IntegrityError
-from django.utils import timezone
 
 @api_view(['POST'])
 @permission_classes([EsVecinoOdirector])
@@ -1047,28 +833,7 @@ def directivo_editar_usuario(request, pk):
 
     return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-@api_view(['GET'])
-@permission_classes([EsDirectivo])
-def proyectos_lista_api(request):
-    try:
-        proyectos = ProyectoVecinal.objects.all().order_by('-fecha_creacion')
-        
-        data = [{
-            'id': proyecto.id,
-            'titulo': proyecto.titulo,
-            'descripcion': proyecto.descripcion,
-            'solicitante_nombre': proyecto.proponente.get_full_name() if proyecto.proponente else 'N/A', # Usamos get_full_name()
-            'fecha_creacion': proyecto.fecha_creacion.strftime('%d-%m-%Y %H:%M'),
-            'estado': proyecto.estado, # Añadimos el estado
-            'fecha_resolucion': proyecto.fecha_revision.strftime('%d-%m-%Y %H:%M') if proyecto.fecha_revision else 'N/A', # Fecha de resolución
-            'revisado_por': proyecto.revisado_por.get_full_name() if proyecto.revisado_por else 'N/A', # Quién lo revisó
-        } for proyecto in proyectos]
 
-        return Response(data)
-    except Exception as e:
-        error_info = traceback.format_exc()
-        print(f"Error en proyectos_lista_api: {error_info}")
-        return JsonResponse({'error': str(e)}, status=500)
 
 N8N_WEBHOOK_URL_PROYECTOVECINAL = 'http://localhost:5678/webhook/bb27b5d2-4f46-400b-b01b-f24001de5847'
 def _enviar_webhook_a_n8n(proyecto, tipo_accion, user):
@@ -1087,102 +852,13 @@ def _enviar_webhook_a_n8n(proyecto, tipo_accion, user):
     except requests.exceptions.RequestException as e:
         print(f"Error al enviar el webhook a n8n: {e}")
 
-@api_view(['POST'])
-@permission_classes([EsDirectivo])
-def aprobar_proyecto(request, proyecto_id):
-    proyecto = get_object_or_404(ProyectoVecinal, pk=proyecto_id)
-    proyecto.fecha_revision = timezone.now()
-    proyecto.revisado_por = request.user
-    
-    try:
-
-        proyecto.save()
-        _enviar_webhook_a_n8n(proyecto, 'aprobacion', request.user)
-        return Response({'message': 'Proyecto aprobado y webhook enviado.'})
-    except IntegrityError as e:
-        return Response({'error': str(e)}, status=500)
-
-@api_view(['POST'])
-@permission_classes([EsDirectivo])
-def rechazar_proyecto(request, proyecto_id):
-    proyecto = get_object_or_404(ProyectoVecinal, pk=proyecto_id)
-    proyecto.fecha_revision = timezone.now()
-    proyecto.revisado_por = request.user
-    
-    try:
-        proyecto.save()
-        _enviar_webhook_a_n8n(proyecto, 'rechazo', request.user)
-        return Response({'message': 'Proyecto rechazado y webhook enviado.'})
-    except IntegrityError as e:
-        return Response({'error': str(e)}, status=500)
 
 
-@api_view(['GET'])
-@permission_classes([EsDirectivo])
-def proyecto_detalle_api(request, proyecto_id):
-    try:
-        proyecto = get_object_or_404(ProyectoVecinal, pk=proyecto_id)
-        
-        proponente_nombre = proyecto.proponente.get_full_name() if proyecto.proponente else 'N/A'
-
-        data = {
-            'id': proyecto.id,
-            'titulo': proyecto.titulo,
-            'descripcion': proyecto.descripcion,
-            'proponente_nombre': proponente_nombre,
-            'fecha_creacion': proyecto.fecha_creacion.strftime('%d-%m-%Y %H:%M'),
-            'estado': proyecto.estado,
-        }
-        
-        return Response(data)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
 
 
-N8N_WEBHOOK_URL_AVISOS = 'http://localhost:5678/webhook-test/6a6dc069-8dbe-4c3f-8f88-e5d4a330b4e2'
-@api_view(['POST'])
-@permission_classes([EsDirectivo])
-def enviar_aviso_masivo(request):
-    """
-    Recibe un aviso, obtiene los datos de los usuarios 'vecino' activos
-    y los envía a n8n para su distribución.
-    """
-    # Filtramos por rol 'vecino' y usuarios activos
-    usuarios = CustomUser.objects.filter(rol='vecino', is_active=True)
 
-    # Creando listas de emails y teléfonos
-    # Usamos una lista de comprensión para asegurarnos que los campos no estén vacíos
-    emails = [u.email for u in usuarios if u.email]
-    telefonos = [u.telefono for u in usuarios if u.telefono]
 
-    # Convertir las listas en cadenas de texto separadas por comas
-    emails_str = ','.join(emails)
-    telefonos_str = ','.join(telefonos)
 
-    titulo = request.data.get('titulo')
-    contenido = request.data.get('contenido')
-    tipo_aviso = request.data.get('tipo_aviso') # 'email', 'whatsapp', o 'ambos'
-
-    if tipo_aviso not in ['email', 'whatsapp', 'ambos']:
-        return Response({'error': 'Tipo de aviso inválido'}, status=400)
-
-    if not all([titulo, contenido, tipo_aviso]):
-        return Response({'error': 'Faltan campos requeridos'}, status=400)
-
-    payload = {
-        'titulo': titulo,
-        'contenido': contenido,
-        'tipo_aviso': tipo_aviso,
-        'emails_destino': emails_str,
-        'telefonos_destino': telefonos_str,
-    }
-
-    try:
-        requests.post(N8N_WEBHOOK_URL_AVISOS, json=payload, timeout=5)
-        return Response({'message': 'Aviso enviado para su distribución.'})
-    except requests.exceptions.RequestException as e:
-        print(f"Error al enviar el webhook de aviso a n8n: {e}")
-        return Response({'message': 'Aviso recibido, pero hubo un error al enviar el webhook de distribución.'}, status=500)
 
 @api_view(['GET', 'POST'])
 @permission_classes([EsDirectivo])
@@ -1510,13 +1186,7 @@ def detalles_dia(request):
     serializer = SolicitudEspacioSerializer(reservas_del_dia, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-from django.db.models import Q, Count
-from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-from .models import SolicitudEspacio, Espacio
-from .permissions import EsDirectivo
+
 
 @api_view(['GET'])
 @permission_classes([EsDirectivo])
@@ -2145,88 +1815,7 @@ def lista_eventos_directivo(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-@api_view(['GET'])
-@permission_classes([EsDirectivo])
-def detalle_evento_directivo(request, evento_id):
-    """
-    Obtiene detalles completos de un evento para directivos
-    """
-    try:
-        actividad = Actividad.objects.get(
-            id=evento_id,
-            junta_vecinos=request.user.junta_vecinos
-        )
-        
-        inscripciones = actividad.inscripciones.all().select_related('vecino')
-        total_inscritos = sum(insc.cantidad_acompanantes + 1 for insc in inscripciones)
-        
-        evento_data = {
-            'id': actividad.id,
-            'titulo': actividad.titulo,
-            'descripcion': actividad.descripcion,
-            'fecha': actividad.fecha,
-            'cupo_maximo': actividad.cupo_maximo,
-            'cupo_por_vecino': actividad.cupo_por_vecino,
-            'permite_acompanantes': actividad.permite_acompanantes,
-            'cupos_disponibles': actividad.cupos_disponibles,
-            'total_inscripciones': inscripciones.count(),
-            'total_personas_inscritas': total_inscritos,
-            'tasa_ocupacion': round((total_inscritos / actividad.cupo_maximo * 100), 2) if actividad.cupo_maximo > 0 else 100,
-            'creada_por': {
-                'id': actividad.creada_por.id,
-                'nombre': actividad.creada_por.get_full_name(),
-                'email': actividad.creada_por.email
-            },
-            'lista_asistencia': [
-                {
-                    'vecino_id': insc.vecino.id,
-                    'vecino_nombre': insc.vecino.get_full_name(),
-                    'vecino_rut': insc.vecino.rut,
-                    'vecino_telefono': insc.vecino.telefono,
-                    'cantidad_acompanantes': insc.cantidad_acompanantes,
-                    'nombres_acompanantes': insc.nombres_acompanantes,
-                    'total_personas': insc.total_personas,
-                    'fecha_inscripcion': insc.fecha_inscripcion
-                }
-                for insc in inscripciones
-            ]
-        }
-        
-        return Response(evento_data, status=status.HTTP_200_OK)
-        
-    except Actividad.DoesNotExist:
-        return Response(
-            {'error': 'Evento no encontrado'},
-            status=status.HTTP_404_NOT_FOUND
-        )
-    except Exception as e:
-        return Response(
-            {'error': f'Error al obtener detalles del evento: {str(e)}'},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-from django.utils import timezone
-from django.db.models import Count, Sum, Q
-from django.http import JsonResponse
-from .models import Actividad, InscripcionActividad
-from .serializers import ActividadSerializer, InscripcionActividadSerializer
-from .permissions import EsDirectivo
-from datetime import timedelta
-import csv
-from django.http import HttpResponse
-from django.utils import timezone
-from django.db.models import Q, Count
-from django.db.models.functions import TruncMonth
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-
-from .models import Actividad
-from .serializers import ActividadSerializer
-from .permissions import EsDirectivo
 
 
 @api_view(['GET'])
@@ -2343,211 +1932,12 @@ def detalle_evento(request, evento_id):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['PUT'])
-@permission_classes([EsDirectivo])
-def editar_evento(request, evento_id):
-    """
-    Edita un evento existente.
-    """
-    try:
-        evento = Actividad.objects.get(
-            id=evento_id,
-            junta_vecinos=request.user.junta_vecinos
-        )
-        serializer = ActividadSerializer(
-            evento,
-            data=request.data,
-            partial=True,
-            context={'request': request}
-        )
-        if serializer.is_valid():
-            evento = serializer.save()
-            return Response({
-                'message': 'Evento actualizado exitosamente',
-                'evento': ActividadSerializer(evento, context={'request': request}).data
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response({
-                'error': 'Datos inválidos',
-                'detalles': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-    except Actividad.DoesNotExist:
-        return Response({'error': 'Evento no encontrado'},
-                        status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'error': f'Error al editar evento: {str(e)}'},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['DELETE'])
-@permission_classes([EsDirectivo])
-def eliminar_evento(request, evento_id):
-    """
-    Elimina un evento.
-    """
-    try:
-        evento = Actividad.objects.get(
-            id=evento_id,
-            junta_vecinos=request.user.junta_vecinos
-        )
-        evento.delete()
-        return Response({'message': 'Evento eliminado exitosamente'},
-                        status=status.HTTP_200_OK)
-
-    except Actividad.DoesNotExist:
-        return Response({'error': 'Evento no encontrado'},
-                        status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'error': f'Error al eliminar evento: {str(e)}'},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['GET'])
-@permission_classes([EsDirectivo])
-def obtener_inscritos_evento(request, evento_id):
-    """
-    Obtiene la lista de inscritos de un evento.
-    """
-    try:
-        evento = Actividad.objects.get(
-            id=evento_id,
-            junta_vecinos=request.user.junta_vecinos
-        )
-        inscripciones = evento.inscripciones.select_related('vecino').all()
-
-        inscritos_data = []
-        for inscripcion in inscripciones:
-            inscritos_data.append({
-                'id': inscripcion.id,
-                'vecino_id': inscripcion.vecino.id,
-                'nombre_completo': inscripcion.vecino.get_full_name(),
-                'email': inscripcion.vecino.email,
-                'rut': inscripcion.vecino.rut,
-                'telefono': inscripcion.vecino.telefono,
-                'cantidad_acompanantes': inscripcion.cantidad_acompanantes,
-                'nombres_acompanantes': inscripcion.nombres_acompanantes,
-                'fecha_inscripcion': inscripcion.fecha_inscripcion,
-                'total_personas': inscripcion.total_personas
-            })
-
-        total_inscritos = inscripciones.count()
-        total_personas = sum(i.total_personas for i in inscripciones)
-
-        return Response({
-            'evento': {
-                'id': evento.id,
-                'titulo': evento.titulo,
-                'fecha': evento.fecha,
-                'cupo_maximo': evento.cupo_maximo,
-                'cupo_por_vecino': evento.cupo_por_vecino,
-                'permite_acompanantes': evento.permite_acompanantes
-            },
-            'inscritos': inscritos_data,
-            'estadisticas': {
-                'total_inscritos': total_inscritos,
-                'total_personas': total_personas,
-                'cupos_utilizados': total_personas,
-                'cupos_disponibles': evento.cupos_disponibles
-            }
-        }, status=status.HTTP_200_OK)
-
-    except Actividad.DoesNotExist:
-        return Response({'error': 'Evento no encontrado'},
-                        status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'error': f'Error al obtener inscritos: {str(e)}'},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['GET'])
-@permission_classes([EsDirectivo])
-def exportar_inscritos_evento(request, evento_id):
-    """
-    Exporta la lista de inscritos a CSV.
-    """
-    try:
-        evento = Actividad.objects.get(
-            id=evento_id,
-            junta_vecinos=request.user.junta_vecinos
-        )
-        inscripciones = evento.inscripciones.select_related('vecino').all()
-
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = (
-            f'attachment; filename="inscritos_{evento.titulo}.csv"'
-        )
-
-        writer = csv.writer(response)
-        writer.writerow([
-            'Nombre', 'Email', 'RUT', 'Teléfono',
-            'Acompañantes', 'Nombres Acompañantes',
-            'Fecha Inscripción', 'Total Personas'
-        ])
-
-        for inscripcion in inscripciones:
-            nombres_acompanantes = (
-                ', '.join(inscripcion.nombres_acompanantes)
-                if isinstance(inscripcion.nombres_acompanantes, list)
-                else inscripcion.nombres_acompanantes
-            )
-            writer.writerow([
-                inscripcion.vecino.get_full_name(),
-                inscripcion.vecino.email,
-                inscripcion.vecino.rut,
-                inscripcion.vecino.telefono,
-                inscripcion.cantidad_acompanantes,
-                nombres_acompanantes,
-                inscripcion.fecha_inscripcion.strftime('%Y-%m-%d %H:%M'),
-                1 + inscripcion.cantidad_acompanantes
-            ])
-
-        return response
-
-    except Actividad.DoesNotExist:
-        return Response({'error': 'Evento no encontrado'},
-                        status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'error': f'Error al exportar inscritos: {str(e)}'},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(['GET'])
-@permission_classes([EsDirectivo])
-def estadisticas_eventos(request):
-    """
-    Obtiene estadísticas generales de eventos de la junta de vecinos.
-    """
-    try:
-        ahora = timezone.now()
-        eventos = Actividad.objects.filter(junta_vecinos=request.user.junta_vecinos)
-
-        total_eventos = eventos.count()
-        eventos_proximos = eventos.filter(fecha__gt=ahora).count()
-        eventos_pasados = eventos.filter(fecha__lt=ahora).count()
-        eventos_hoy = eventos.filter(fecha__date=ahora.date()).count()
-
-        seis_meses_atras = ahora - timedelta(days=180)
-        eventos_por_mes = eventos.filter(
-            fecha__gte=seis_meses_atras
-        ).annotate(
-            mes=TruncMonth('fecha')
-        ).values('mes').annotate(
-            total=Count('id')
-        ).order_by('mes')
-
-        return Response({
-            'estadisticas_generales': {
-                'total_eventos': total_eventos,
-                'eventos_proximos': eventos_proximos,
-                'eventos_pasados': eventos_pasados,
-                'eventos_hoy': eventos_hoy
-            }
-        }, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        return Response({'error': f'Error al obtener estadísticas: {str(e)}'},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['PUT'])
 @permission_classes([EsVecinoOdirector])
@@ -2629,131 +2019,13 @@ def actualizar_perfil(request):
             'message': f'Error al actualizar el perfil: {str(e)}'
         }, status=500)
 
-@api_view(['POST'])
-@permission_classes([EsVecinoOdirector])
-def cambiar_password(request):
-    try:
-        user = request.user
-        
-        # Leer los datos del request
-        data = json.loads(request.body)
-        
-        # Validar campos requeridos
-        required_fields = ['old_password', 'new_password1', 'new_password2']
-        for field in required_fields:
-            if field not in data or not data[field]:
-                return JsonResponse({
-                    'success': False,
-                    'message': f'El campo {field} es requerido'
-                }, status=400)
-        
-        # Verificar que las nuevas contraseñas coincidan
-        if data['new_password1'] != data['new_password2']:
-            return JsonResponse({
-                'success': False,
-                'message': 'Las contraseñas nuevas no coinciden'
-            }, status=400)
-        
-        # Verificar longitud mínima de la contraseña
-        if len(data['new_password1']) < 8:
-            return JsonResponse({
-                'success': False,
-                'message': 'La contraseña debe tener al menos 8 caracteres'
-            }, status=400)
-        
-        # Verificar la contraseña actual
-        if not user.check_password(data['old_password']):
-            return JsonResponse({
-                'success': False,
-                'message': 'La contraseña actual es incorrecta'
-            }, status=400)
-        
-        # Cambiar la contraseña
-        user.set_password(data['new_password1'])
-        user.save()
-        
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Contraseña cambiada correctamente'
-        })
-        
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': 'Error en el formato de los datos'
-        }, status=400)
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'Error al cambiar la contraseña: {str(e)}'
-        }, status=500)
 
-@api_view(['GET'])
-@permission_classes([EsVecinoOdirector])
-def obtener_perfil(request):
-    """API para obtener los datos completos del perfil"""
-    try:
-        user = request.user
-        
-        # Datos del CustomUser
-        perfil_data = {
-            'id': user.id,
-            'nombre': user.nombre,
-            'apellido': user.apellido,
-            'email': user.email,
-            'telefono': user.telefono,
-            'direccion': user.direccion,
-            'rut': user.rut,
-            'nombre_completo': user.get_full_name(),
-            'rol': user.rol,
-            'date_joined': user.date_joined.isoformat(),
-            'last_login': user.last_login.isoformat() if user.last_login else None,
-            'is_active': user.is_active,
-        }
-        
-        # Información de la junta de vecinos si existe
-        if user.junta_vecinos:
-            perfil_data['junta_vecinos'] = {
-                'id': user.junta_vecinos.id,
-                'nombre': user.junta_vecinos.nombre,
-                'direccion': user.junta_vecinos.direccion,
-                'comuna': user.junta_vecinos.comuna,
-                'region': user.junta_vecinos.region,
-            }
-        
-        return JsonResponse({
-            'success': True,
-            'perfil': perfil_data
-        })
-        
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'Error al obtener el perfil: {str(e)}'
-        }, status=500)
-
-
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-import json
-import secrets
-import requests
-from django.utils import timezone
-from datetime import timedelta
-from django.contrib.auth import update_session_auth_hash
-from .models import CustomUser
-from django.core.cache import cache
-
-# Configuración
 VERIFICATION_CODE_LENGTH = 6
 CODE_EXPIRATION_MINUTES = 5
 MAX_ATTEMPTS = 3
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def send_verification_code(request):
     """Enviar código de verificación via n8n webhook"""
     try:
@@ -2819,7 +2091,7 @@ def send_verification_code(request):
         }, status=500)
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def verify_code(request):
     """Verificar el código de verificación"""
     try:
@@ -2902,7 +2174,7 @@ def verify_code(request):
         }, status=500)
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def resend_code(request):
     """Reenviar código de verificación"""
     try:
@@ -2945,7 +2217,7 @@ def resend_code(request):
         }, status=500)
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def reset_password(request):
     """Restablecer la contraseña después de verificación"""
     try:
@@ -3156,9 +2428,7 @@ def espacio_detail(request, pk):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         elif request.method == 'DELETE':
-            # Verificar si hay solicitudes futuras antes de eliminar
-            from django.utils import timezone
-            from django.db.models import Q
+        
             
             solicitudes_futuras = espacio.solicitudespacio_set.filter(
                 Q(fecha_evento__gte=timezone.now().date()) |
@@ -3184,7 +2454,7 @@ def espacio_detail(request, pk):
         )
 
 # Vista para directivos con permisos específicos
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([EsDirectivo])
 def gestion_espacios_directivo(request):
     """
@@ -3213,11 +2483,7 @@ def gestion_espacios_directivo(request):
         disponibles = espacios.filter(disponible=True).count()
         no_disponibles = total_espacios - disponibles
         
-        # Contar reservas activas (últimos 30 días)
-        from datetime import timedelta
-        from django.utils import timezone
-        from .models import SolicitudEspacio
-        
+
         fecha_limite = timezone.now().date() - timedelta(days=30)
         reservas_activas = SolicitudEspacio.objects.filter(
             espacio__junta_vecinos=junta_vecinos,

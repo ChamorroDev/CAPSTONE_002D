@@ -4,9 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const proyectosTableBody = document.getElementById('proyectos-table-body');
 
 
-    // Función para renderizar los proyectos en la tabla
     function renderizarProyectos(proyectos) {
-        proyectosTableBody.innerHTML = ''; // Limpiar la tabla
+        proyectosTableBody.innerHTML = ''; 
         if (proyectos.length === 0) {
             proyectosTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Aún no has postulado ningún proyecto.</td></tr>';
             return;
@@ -15,9 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         proyectos.forEach(proyecto => {
             const row = document.createElement('tr');
             
-            // Lógica para mostrar el estado con los colores correctos
             let estadoBadge = '';
-            // El estado viene en minúsculas desde el backend, capitalizamos la primera letra para el display
             const estadoDisplay = proyecto.estado.charAt(0).toUpperCase() + proyecto.estado.slice(1);
 
             if (proyecto.estado === 'aprobado') {
@@ -25,12 +22,11 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (proyecto.estado === 'rechazado') {
                 estadoBadge = `<span class="badge bg-danger">${estadoDisplay}</span>`;
             } else if (proyecto.estado === 'completado') {
-                 estadoBadge = `<span class="badge bg-info text-dark">${estadoDisplay}</span>`;
+                estadoBadge = `<span class="badge bg-info text-dark">${estadoDisplay}</span>`;
             } else {
                 estadoBadge = `<span class="badge bg-warning text-dark">${estadoDisplay}</span>`;
             }
             
-            // Formatear la fecha a un formato legible
             const fechaCreacion = new Date(proyecto.fecha_creacion).toLocaleDateString('es-CL');
             const fechaRevision = proyecto.fecha_revision ? new Date(proyecto.fecha_revision).toLocaleDateString('es-CL') : 'Pendiente';
 
@@ -44,7 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Función para cargar los proyectos del usuario desde la API
     async function cargarProyectosUsuario() {
         const token = localStorage.getItem('access_token');
         if (!token) {
@@ -73,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Event listener para el formulario de postulación
     if (form) {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -105,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.ok) {
                     messageDiv.innerHTML = `<div class="alert alert-success">¡Proyecto postulado correctamente!</div>`;
                     form.reset();
-                    // Llama a la función para actualizar la tabla
                     cargarProyectosUsuario();
                 } else {
                     let errorMsg = data.error ? JSON.stringify(data.error) : 'Error al postular el proyecto.';
@@ -117,6 +110,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Carga inicial de los proyectos al cargar la página
     cargarProyectosUsuario();
 });

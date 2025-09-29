@@ -32,7 +32,6 @@ class EspacioCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre', 'tipo', 'descripcion', 'disponible']
 
 class UserLoginSerializer(serializers.ModelSerializer):
-    """Serializer simplificado para respuestas de login"""
     nombre_completo = serializers.SerializerMethodField()
     junta_nombre = serializers.CharField(source='junta_vecinos.nombre', read_only=True)
     
@@ -262,17 +261,14 @@ class NoticiaListSerializer(serializers.ModelSerializer):
 class VecinoRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        # Añade el nuevo campo 'documento_verificacion' a la lista de campos
         fields = ('id', 'nombre', 'apellido', 'email', 'password', 'rut', 'telefono', 'direccion', 'fecha_nacimiento', 'documento_verificacion')
         extra_kwargs = {
             'password': {'write_only': True},
         }
 
     def create(self, validated_data):
-        # 1. Extrae el documento de los datos validados para no pasárselo a create_user
         documento_verificacion = validated_data.pop('documento_verificacion', None)
 
-        # 2. Crea el usuario con los datos restantes
         user = CustomUser.objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
@@ -284,17 +280,15 @@ class VecinoRegistrationSerializer(serializers.ModelSerializer):
             fecha_nacimiento=validated_data.get('fecha_nacimiento', None)
         )
 
-        # 3. Asigna el documento de verificación al usuario si existe
         if documento_verificacion:
             user.documento_verificacion = documento_verificacion
-            user.save()  # Guarda el usuario de nuevo para que se almacene el archivo
+            user.save()  
 
         return user
 
 class DirectivoUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        # Añade 'documento_verificacion' para que sea incluido en la respuesta
         fields = (
             'id', 'nombre', 'apellido', 'email', 'rut', 'telefono', 
             'direccion', 'fecha_nacimiento', 'is_active', 'rol', 
@@ -316,11 +310,9 @@ class NoticiaEditSerializer(serializers.ModelSerializer):
         fields = ['id', 'titulo', 'contenido', 'fecha_creacion', 'fecha_publicacion', 'es_publica', 'imagen_principal', 'imagenes']
 
     def update(self, instance, validated_data):
-        # Manejar el campo imagen_principal
         imagen_principal_data = validated_data.pop('imagen_principal', None)
         instance.imagen_principal = imagen_principal_data
         
-        # Actualizar los demás campos de la noticia
         instance.titulo = validated_data.get('titulo', instance.titulo)
         instance.contenido = validated_data.get('contenido', instance.contenido)
         instance.es_publica = validated_data.get('es_publica', instance.es_publica)

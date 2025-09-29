@@ -4,7 +4,7 @@ import os
 
 def validate_image_size(value):
     filesize = value.size
-    if filesize > 5 * 1024 * 1024:  # 5MB
+    if filesize > 5 * 1024 * 1024:  
         raise ValidationError(_("El tamaño máximo de imagen es 5MB"))
 
 def validate_image_extension(value):

@@ -16,24 +16,20 @@ class PasswordRecoveryUnified {
 
     cacheDOMElements() {
         this.elements = {
-            // Steps
             stepEmail: document.getElementById('step-email'),
             stepCode: document.getElementById('step-code'),
             stepPassword: document.getElementById('step-password'),
             
-            // Inputs
             email: document.getElementById('email'),
             verificationCode: document.getElementById('verification-code'),
             newPassword: document.getElementById('new-password'),
             confirmPassword: document.getElementById('confirm-password'),
             
-            // Buttons
             btnSendCode: document.getElementById('btn-send-code'),
             btnResendCode: document.getElementById('btn-resend-code'),
             btnVerifyCode: document.getElementById('btn-verify-code'),
             btnResetPassword: document.getElementById('btn-reset-password'),
             
-            // Display elements
             emailDisplay: document.getElementById('email-display'),
             countdown: document.getElementById('countdown'),
             passwordStrengthBar: document.getElementById('password-strength-bar'),
@@ -43,20 +39,17 @@ class PasswordRecoveryUnified {
     }
 
     setupEventListeners() {
-        // Paso 1: Enviar código
         this.elements.btnSendCode.addEventListener('click', () => this.sendVerificationCode());
         this.elements.email.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.sendVerificationCode();
         });
 
-        // Paso 2: Verificar código
         this.elements.btnVerifyCode.addEventListener('click', () => this.verifyCode());
         this.elements.verificationCode.addEventListener('input', (e) => {
             if (e.target.value.length === 6) this.verifyCode();
         });
         this.elements.btnResendCode.addEventListener('click', () => this.resendCode());
 
-        // Paso 3: Contraseña
         this.elements.newPassword.addEventListener('input', () => this.checkPasswordStrength());
         this.elements.confirmPassword.addEventListener('input', () => this.checkPasswordMatch());
         this.elements.btnResetPassword.addEventListener('click', (e) => {
@@ -64,7 +57,6 @@ class PasswordRecoveryUnified {
             this.resetPassword();
         });
 
-        // Toggle password visibility
         document.querySelectorAll('.toggle-password').forEach(btn => {
             btn.addEventListener('click', (e) => this.togglePasswordVisibility(e));
         });
@@ -95,7 +87,6 @@ class PasswordRecoveryUnified {
                 this.userEmail = email;
                 this.elements.emailDisplay.textContent = email;
                 this.showStep(2);
-                this.startCountdown(300); // 5 minutos
                 this.showSuccess('Código enviado correctamente');
             } else {
                 this.showError(data.message || 'Error al enviar el código');
@@ -204,8 +195,8 @@ class PasswordRecoveryUnified {
 
             if (response.ok && data.success) {
                 this.showSuccess('Código reenviado correctamente');
-                this.startResendTimeout(60); // 1 minuto de espera
-                this.startCountdown(300); // Reiniciar countdown
+                this.startResendTimeout(60); 
+                this.startCountdown(300); 
             } else {
                 this.showError(data.message || 'Error al reenviar el código');
             }
@@ -214,14 +205,11 @@ class PasswordRecoveryUnified {
         }
     }
 
-    // Helper methods
     showStep(stepNumber) {
-        // Ocultar todos los steps
         this.elements.stepEmail.classList.remove('active');
         this.elements.stepCode.classList.remove('active');
         this.elements.stepPassword.classList.remove('active');
         
-        // Mostrar step actual
         if (stepNumber === 1) {
             this.elements.stepEmail.classList.add('active');
             this.elements.email.focus();
@@ -368,7 +356,6 @@ class PasswordRecoveryUnified {
             button.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div>Procesando...';
         } else {
             button.disabled = false;
-            // Restaurar texto original basado en el botón
             if (button.id === 'btn-send-code') {
                 button.innerHTML = '<i class="bi bi-send me-2"></i>Enviar código de verificación';
             } else if (button.id === 'btn-verify-code') {
@@ -388,7 +375,6 @@ class PasswordRecoveryUnified {
     }
 
     showToast(message, type) {
-        // Implementación del toast (igual que antes)
         const toastContainer = document.getElementById('toast-container') || this.createToastContainer();
         const toastId = 'toast-' + Date.now();
         const bgColor = type === 'error' ? 'danger' : 'success';
@@ -414,7 +400,6 @@ class PasswordRecoveryUnified {
         });
     }
 
-    // En password_recovery_unified.js - agregar después de verifyCode()
     async checkResetStatus() {
         try {
             const response = await fetch(`${window.URL_API || 'http://127.0.0.1:8000/'}api/auth/check-reset-status/`, {
@@ -450,7 +435,6 @@ class PasswordRecoveryUnified {
     }
 }
 
-// Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('recoveryForm')) {
         new PasswordRecoveryUnified();

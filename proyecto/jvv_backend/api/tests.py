@@ -7,7 +7,6 @@ from .models import CustomUser, JuntaVecinos
 
 class APITests(APITestCase):
     def setUp(self):
-        # Crear junta de vecinos
         self.junta = JuntaVecinos.objects.create(
             nombre="Junta de Prueba",
             direccion="Calle Test 123",
@@ -15,7 +14,6 @@ class APITests(APITestCase):
             region="Testregion"
         )
         
-        # Crear usuario administrador
         self.admin_user = CustomUser.objects.create_user(
             email="admin@test.cl",
             password="testpassword",

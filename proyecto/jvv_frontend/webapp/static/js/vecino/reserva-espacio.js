@@ -1,14 +1,12 @@
 
 class ReservaEspacio {
     constructor() {
-        // Estado de la aplicación
         this.espacios = [];
-        this.todasReservas = []; // Mantenemos esta lista para el estado del calendario
+        this.todasReservas = [];
         this.fechaSeleccionada = new Date();
         this.espacioSeleccionadoId = '';
         this.detallesReservaModal = null;
 
-        // Inicialización
         this.init();
     }
 
@@ -18,11 +16,9 @@ class ReservaEspacio {
         this.setupEventListeners();
         this.renderizarCalendario();
         this.mostrarMensaje('¡Listo para reservar!', 'success', 2000);
-        // Inicializa el modal al cargar la página
         this.detallesReservaModal = new bootstrap.Modal(document.getElementById('detallesReservaModal'));
     }
 
-    // --- Carga de datos del backend ---
     async cargarDatosIniciales() {
         const token = localStorage.getItem('access_token');
         if (!token) {
@@ -33,7 +29,7 @@ class ReservaEspacio {
         try {
             await Promise.all([
                 this.fetchEspacios(token),
-                this.fetchReservas(token), // Mantenemos esta llamada para pintar el calendario
+                this.fetchReservas(token),
                 this.fetchMisReservas(token)
             ]);
         } catch (error) {
@@ -52,7 +48,7 @@ class ReservaEspacio {
     }
 
     async fetchReservas(token) {
-        const response = await fetch(`${URL_API}api/reservas/`, { // Endpoint para TODAS las reservas (para el calendario)
+        const response = await fetch(`${URL_API}api/reservas/`, { 
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('Error al cargar reservas del calendario.');
@@ -68,7 +64,6 @@ class ReservaEspacio {
         this.actualizarTablaReservas(misReservas);
     }
     
-    // --- Event Listeners y Lógica de UI ---
     setupEventListeners() {
         const form = document.getElementById('reservaForm');
         if (form) {
@@ -101,7 +96,6 @@ class ReservaEspacio {
         }
     }
 
-    // --- Lógica de validación y envío del formulario ---
     validarYEnviarFormulario(e) {
         e.preventDefault();
         
@@ -160,7 +154,6 @@ class ReservaEspacio {
         }
     }
 
-    // --- Lógica del calendario ---
     renderizarCalendario() {
         const calendarioDiv = document.getElementById('calendario-mini');
         if (!calendarioDiv) return;
@@ -253,7 +246,6 @@ class ReservaEspacio {
     }
 
     seleccionarDia(fechaStr) {
-        // Se valida que el usuario haya seleccionado un espacio antes de solicitar los detalles.
         const espacioId = document.getElementById('selectorEspacioCalendario').value;
         
         if (!espacioId) {
@@ -301,8 +293,7 @@ class ReservaEspacio {
     llenarSelectsHoras(disponibilidad) {
         const selectInicio = document.getElementById('id_hora_inicio');
         const selectFin = document.getElementById('id_hora_fin');
-        const horas = Array.from({length: 13}, (_, i) => `${(8 + i).toString().padStart(2, '0')}:00`); // 08:00 a 20:00
-
+        const horas = Array.from({length: 13}, (_, i) => `${(8 + i).toString().padStart(2, '0')}:00`); 
         selectInicio.innerHTML = '<option value="">Selecciona hora</option>';
         selectFin.innerHTML = '<option value="">Selecciona hora</option>';
 
@@ -316,12 +307,10 @@ class ReservaEspacio {
             }
         });
 
-        // Habilita o deshabilita los selects si no hay opciones
         selectInicio.disabled = selectInicio.length <= 1;
         selectFin.disabled = selectFin.length <= 1;
     }
 
-    // --- Helpers de UI y utilidades ---
     llenarSelectsEspacios() {
         const selectForm = document.getElementById('id_espacio');
         const selectCalendario = document.getElementById('selectorEspacioCalendario');
@@ -398,7 +387,7 @@ class ReservaEspacio {
     limpiarFormulario() {
         const form = document.getElementById('reservaForm');
         if (form) form.reset();
-        this.actualizarHorasDisponibles(); // Resetea las horas
+        this.actualizarHorasDisponibles(); 
     }
     
     async mostrarDetallesDia(fecha, espacioId) {
@@ -414,9 +403,7 @@ class ReservaEspacio {
         this.detallesReservaModal.show();
         
         try {
-            // ** EL CAMBIO IMPORTANTE ESTÁ AQUÍ **
-            // Hacemos una llamada al nuevo endpoint de Django para obtener los datos
-            // específicos del día y espacio seleccionados.
+            
             const token = localStorage.getItem('access_token');
             const response = await fetch(`${URL_API}api/espacios/detalles_dia/?espacio_id=${espacioId}&fecha=${fecha}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -458,7 +445,6 @@ class ReservaEspacio {
     }
 }
 
-// Inicia la aplicación cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     new ReservaEspacio();
 });

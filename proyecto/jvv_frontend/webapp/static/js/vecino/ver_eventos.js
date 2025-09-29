@@ -9,7 +9,6 @@ class GestorEventos {
         this.eventos = [];
         this.isLoading = false;
         
-        // Cache de elementos DOM
         this.domCache = {};
         
         this.init();
@@ -22,33 +21,27 @@ class GestorEventos {
         this.setupEventListeners();
     }
 
-    // Cachear elementos DOM para mejor performance
     cacheDOM() {
         const selectors = {
-            // Navegación
             'prevMonth': '.prev-month',
             'nextMonth': '.next-month',
             'currentMonth': '#current-month',
             'calendarGrid': '#calendar-grid',
             
-            // Botones principales
             'btnInscripciones': '#btn-inscripciones',
             'btnVerTodos': '#btn-ver-todos',
             'btnQuitarFiltro': '#btn-quitar-filtro',
             
-            // Modales y botones
             'eventoModal': '#eventoModal',
             'eventoModalTitle': '#eventoModalTitle',
             'eventoModalBody': '#eventoModalBody',
             'btnInscribirse': '#btn-inscribirse',
             'btnCancelar': '#btn-cancelar',
             
-            // Acompañantes
             'acompanantesModal': '#acompanantesModal',
             'acompanantesModalBody': '#acompanantesModalBody',
             'btnConfirmarInscripcion': '#btn-confirmar-inscripcion',
             
-            // Contenedores
             'eventosContainer': '#eventos-container',
             'inscripcionesContainer': '#inscripciones-container',
             'inscripcionesModal': '#inscripcionesModal'
@@ -60,7 +53,6 @@ class GestorEventos {
     }
 
     setupEventListeners() {
-        // Navegación del calendario - delegación mejorada
         this.domCache.calendarGrid?.addEventListener('click', (e) => {
             const dayItem = e.target.closest('.day-item');
             if (dayItem) {
@@ -71,23 +63,18 @@ class GestorEventos {
             }
         });
 
-        // Botones de navegación del mes
         this.domCache.prevMonth?.addEventListener('click', () => this.navegarMes(-1));
         this.domCache.nextMonth?.addEventListener('click', () => this.navegarMes(1));
 
-        // Botones principales con debounce
         this.debouncedClick(this.domCache.btnInscripciones, () => this.mostrarMisInscripciones());
         this.debouncedClick(this.domCache.btnVerTodos, () => this.quitarFiltroDia());
         this.debouncedClick(this.domCache.btnQuitarFiltro, () => this.quitarFiltroDia());
 
-        // Botones de modales
         this.debouncedClick(this.domCache.btnInscribirse, () => this.prepararInscripcion());
         this.debouncedClick(this.domCache.btnCancelar, () => this.cancelarInscripcion());
         this.debouncedClick(this.domCache.btnConfirmarInscripcion, () => this.confirmarInscripcionConAcompanantes());
 
-        // Delegación para botones dinámicos
         document.addEventListener('click', (e) => {
-            // Botones de ver detalles
             if (e.target.closest('.btn-ver-detalles')) {
                 const btn = e.target.closest('.btn-ver-detalles');
                 const eventoId = btn.dataset.eventoId;
@@ -95,7 +82,6 @@ class GestorEventos {
                 return;
             }
 
-            // Botones de cancelar inscripción
             if (e.target.closest('.btn-cancelar-inscripcion')) {
                 const btn = e.target.closest('.btn-cancelar-inscripcion');
                 const eventoId = btn.dataset.eventoId;
@@ -104,20 +90,17 @@ class GestorEventos {
             }
         });
 
-        // Input de acompañantes con debounce
         document.addEventListener('input', this.debounce((e) => {
             if (e.target.id === 'cantidadAcompanantes') {
                 this.actualizarFormularioAcompanantes(e.target.value);
             }
         }, 300));
 
-        // Responsive
         window.addEventListener('resize', this.debounce(() => {
             this.actualizarBotonesResponsive();
         }, 250));
     }
 
-    // Debounce para mejorar performance
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -138,7 +121,6 @@ class GestorEventos {
     navegarMes(direction) {
         this.currentDate.setMonth(this.currentDate.getMonth() + direction);
         this.renderCalendar();
-        // Si hay filtro activo, mantenerlo aplicado al nuevo mes
         if (this.filtroDiaActivo) {
             this.mostrarEventosFiltrados();
         }
@@ -207,7 +189,6 @@ class GestorEventos {
             return;
         }
 
-        // Actualizar título según filtro
         const tituloElement = document.querySelector('h2.mb-4');
         if (tituloElement) {
             tituloElement.innerHTML = this.filtroDiaActivo ? 
@@ -218,7 +199,6 @@ class GestorEventos {
                 'Próximos Eventos';
         }
 
-        // Usar DocumentFragment para mejor performance
         const fragment = document.createDocumentFragment();
         
         eventosParaMostrar.forEach(evento => {
@@ -277,7 +257,6 @@ class GestorEventos {
     }
 
     async mostrarDetallesEvento(eventoId) {
-        // Buscar en eventos ya cargados primero (más rápido)
         const evento = this.eventos.find(e => e.id == eventoId);
         if (evento) {
             this.currentEventoId = eventoId;
@@ -286,7 +265,6 @@ class GestorEventos {
             return;
         }
 
-        // Si no está en cache, cargar desde API
         try {
             const token = localStorage.getItem('access_token');
             const response = await fetch(`${window.URL_API || 'http://127.0.0.1:8000/'}api/eventos/${eventoId}/`, {
@@ -522,41 +500,33 @@ class GestorEventos {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
         
-        // Limpiar solo los días, mantener los headers
         const existingChildren = Array.from(this.domCache.calendarGrid.children);
         for (let i = 7; i < existingChildren.length; i++) {
             this.domCache.calendarGrid.removeChild(existingChildren[i]);
         }
 
-        // Usar fragment para mejor performance
         const fragment = document.createDocumentFragment();
 
-        // Agregar días vacíos al inicio
         for (let i = 0; i < firstDay.getDay(); i++) {
             const emptyDay = document.createElement('div');
             emptyDay.className = 'p-1 p-md-2 border-0 bg-light';
             emptyDay.innerHTML = '&nbsp;';
             fragment.appendChild(emptyDay);
         }
-
-        // Agregar días del mes
         const hoy = new Date();
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const dayElement = document.createElement('div');
             dayElement.className = 'day-item';
             dayElement.textContent = day;
             
-            // Marcar si es el día actual
             if (day === hoy.getDate() && month === hoy.getMonth() && year === hoy.getFullYear()) {
                 dayElement.classList.add('bg-info', 'text-white');
             }
             
-            // Marcar días con eventos
             if (this.tieneEventosEsteDia(day, month, year)) {
                 dayElement.classList.add('has-events');
             }
             
-            // Marcar si está filtrado
             if (this.filtroDiaActivo === day) {
                 dayElement.classList.add('border-warning', 'border-3');
             }
@@ -894,9 +864,7 @@ class GestorEventos {
     }
 }
 
-// Inicializar
 document.addEventListener('DOMContentLoaded', function() {
-    // Pequeño delay para que el DOM esté completamente listo
     setTimeout(() => {
         window.gestorEventos = new GestorEventos();
     }, 100);

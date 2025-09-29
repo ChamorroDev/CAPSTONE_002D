@@ -96,11 +96,9 @@ class VecinoDashboard {
     updateStats(estadisticas) {
         if (!estadisticas) return;
         
-        // Estadísticas generales
         document.getElementById('stats-totales').textContent = estadisticas.solicitudes_totales || 0;
         document.getElementById('stats-pendientes').textContent = estadisticas.solicitudes_pendientes_totales || 0;
         
-        // Total de aprobados
         const totalAprobados = (estadisticas.certificados_aprobados || 0) + 
                               (estadisticas.espacios_aprobados || 0) + 
                               (estadisticas.proyectos_aprobados || 0);
@@ -111,7 +109,6 @@ class VecinoDashboard {
         const container = document.getElementById('noticias-container');
         if (!container) return;
         
-        // Limitar a solo 5 noticias
         const noticiasLimitadas = noticias ? noticias.slice(0, 5) : [];
         
         if (noticiasLimitadas.length === 0) {
@@ -127,7 +124,7 @@ class VecinoDashboard {
         }
 
         const noticiasHTML = noticiasLimitadas.map(noticia => {
-            // Validar y sanitizar los datos
+        
             const titulo = this.safeString(noticia.titulo, 'Sin título');
             const fecha = noticia.fecha_publicacion ? new Date(noticia.fecha_publicacion).toLocaleDateString('es-ES') : 'Fecha no disponible';
             const contenido = this.safeString(noticia.contenido, '').substring(0, 100);
@@ -160,7 +157,6 @@ class VecinoDashboard {
         const container = document.getElementById('actividades-container');
         if (!container) return;
         
-        // Limitar a solo 5 actividades
         const actividadesLimitadas = actividades ? actividades.slice(0, 5) : [];
         
         if (actividadesLimitadas.length === 0) {
@@ -176,7 +172,6 @@ class VecinoDashboard {
         }
 
         const actividadesHTML = actividadesLimitadas.map(actividad => {
-            // Validar y sanitizar los datos
             const titulo = this.safeString(actividad.titulo, 'Actividad');
             const fechaEvento = actividad.fecha ? new Date(actividad.fecha) : null;
             const esHoy = fechaEvento && new Date().toDateString() === fechaEvento.toDateString();
@@ -217,7 +212,6 @@ class VecinoDashboard {
         `;
     }
 
-    // Función segura para manejar strings
     safeString(value, defaultValue = '') {
         if (value === null || value === undefined || typeof value !== 'string') {
             return defaultValue;
@@ -225,13 +219,11 @@ class VecinoDashboard {
         return this.escapeHtml(value);
     }
 
-    // Función escapeHtml mejorada
     escapeHtml(unsafe) {
         if (unsafe === null || unsafe === undefined) {
             return '';
         }
         
-        // Convertir a string si no lo es
         const safeString = String(unsafe);
         
         return safeString.replace(/[&<"'>]/g, m => 
@@ -261,7 +253,6 @@ class VecinoDashboard {
     }
 }
 
-// Función de verificación de autenticación
 function verifyAuth() {
     if (typeof checkAuthentication === 'function') {
         return checkAuthentication();
@@ -282,7 +273,6 @@ function verifyAuth() {
     };
 }
 
-// Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM cargado - Verificando autenticación...');
     

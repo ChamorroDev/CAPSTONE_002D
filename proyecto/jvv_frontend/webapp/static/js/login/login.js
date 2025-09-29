@@ -1,6 +1,4 @@
-// ==============================================
-// FUNCIONES GLOBALES
-// ==============================================
+
 if (typeof redirectByRole === 'undefined') {
     console.warn('redirectByRole no definida, creando función de emergencia');
     window.redirectByRole = function(role) {
@@ -46,9 +44,7 @@ function globalLogout() {
     }
 }
 
-// ==============================================
-// LOGIN MANAGER (clase principal)
-// ==============================================
+
 
 class LoginManager {
     constructor() {
@@ -136,7 +132,6 @@ class LoginManager {
             if (response.ok) {
                 await this.handleLoginSuccess(data);
             } else {
-                // Esta es la línea clave que maneja todos los mensajes de error
                 const errorMsg = data.detail || data.error || 'Error en el login';
                 throw new Error(errorMsg);
             }
@@ -226,9 +221,6 @@ class LoginManager {
     }
 }
 
-// ==============================================
-// INICIALIZACIÓN
-// ==============================================
 
 document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('loginForm')) {

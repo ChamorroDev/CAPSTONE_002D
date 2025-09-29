@@ -42,7 +42,6 @@ class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
     
-    # Campos personales
     nombre = models.CharField(_('nombre'), max_length=30)
     apellido = models.CharField(_('apellido'), max_length=30)
     rut = models.CharField(_('RUT'), max_length=12, unique=True)
@@ -52,10 +51,8 @@ class CustomUser(AbstractUser):
     documento_verificacion = models.FileField(upload_to='documentos_verificacion/', null=True, blank=True)
     es_vecino = models.BooleanField(_('es registrado'), default=True)
     
-    # Relación con la junta de vecinos
     junta_vecinos = models.ForeignKey(JuntaVecinos, on_delete=models.CASCADE, null=True, blank=True)
     
-    # Roles específicos para junta de vecinos
     ROLES = (
         ('registrado', 'Registrado'),
         ('vecino', 'Vecino'),
@@ -162,9 +159,7 @@ class Noticia(models.Model):
     def cantidad_imagenes(self):
         return self.imagenes.count()
 
-# Configuración para el almacenamiento de imágenes
 def noticia_image_path(instance, filename):
-    # Guardar en: noticias/noticia_{id}/{filename}
     return os.path.join('noticias', f'noticia_{instance.noticia.id}', filename)
 
 class NoticiaImagen(models.Model):
@@ -186,8 +181,8 @@ class Actividad(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField()
     fecha = models.DateTimeField()
-    cupo_maximo = models.IntegerField(default=0)  # 0 = sin límite
-    cupo_por_vecino = models.IntegerField(default=1)  # Máximo de acompañantes + el vecino
+    cupo_maximo = models.IntegerField(default=0)  
+    cupo_por_vecino = models.IntegerField(default=1)  
     permite_acompanantes = models.BooleanField(default=False)
     junta_vecinos = models.ForeignKey(JuntaVecinos, on_delete=models.CASCADE)
     creada_por = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -195,15 +190,13 @@ class Actividad(models.Model):
     def __str__(self):
         return self.titulo
     
-    # En models.py - corrige el método cupos_disponibles
     @property
     def cupos_disponibles(self):
         if self.cupo_maximo == 0:
-            return float('inf')  # Sin límite
+            return float('inf') 
         
         inscritos_total = 0
         for inscripcion in self.inscripciones.all():
-            # SUMAR 1 por el vecino + cantidad de acompañantes
             inscritos_total += 1 + inscripcion.cantidad_acompanantes
         
         return max(0, self.cupo_maximo - inscritos_total)
@@ -213,11 +206,9 @@ class Actividad(models.Model):
         if not self.permite_acompanantes and cantidad_acompanantes > 0:
             return False, "Esta actividad no permite acompañantes"
         
-        # Verificar que no exceda el máximo por vecino (vecino + acompañantes)
         if cantidad_acompanantes + 1 > self.cupo_por_vecino:
             return False, f"Máximo {self.cupo_por_vecino} personas por inscripción"
         
-        # Verificar cupos disponibles considerando vecino + acompañantes
         if self.cupos_disponibles < (1 + cantidad_acompanantes):
             return False, "No hay cupos disponibles"
         
@@ -231,7 +222,7 @@ class InscripcionActividad(models.Model):
     vecino = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     fecha_inscripcion = models.DateTimeField(auto_now_add=True)
     cantidad_acompanantes = models.IntegerField(default=0)
-    nombres_acompanantes = models.JSONField(default=list, blank=True)  # Lista de nombres
+    nombres_acompanantes = models.JSONField(default=list, blank=True)  
     
     class Meta:
         unique_together = ['actividad', 'vecino']

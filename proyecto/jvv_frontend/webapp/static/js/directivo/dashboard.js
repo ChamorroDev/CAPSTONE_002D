@@ -27,43 +27,34 @@ class DirectivoDashboard {
                 this.initCharts(data.solicitudes_mes_a_mes || []);
             } else {
                 console.error('Error cargando dashboard:', response.status);
-                // Opcional: mostrar un mensaje de error en el UI
             }
         } catch (error) {
             console.error('Error:', error);
-            // Opcional: mostrar un mensaje de error en el UI
         }
     }
 
     updateDashboard(data) {
-        // Actualizar estadísticas de las tarjetas
         document.getElementById('total-vecinos').textContent = data.total_vecinos || 0;
         document.getElementById('pending-users-count').textContent = data.pendientes_aprobacion || 0;
         document.getElementById('pending-certificados').textContent = data.certificados_pendientes || 0;
         document.getElementById('pending-badge').textContent = data.pendientes_aprobacion || 0;
 
-        // Agregar actualización de proyectos
         document.getElementById('pending-proyectos').textContent = data.proyectos_pendientes || 0;
         document.getElementById('pending-proyectos-badge').textContent = data.proyectos_pendientes || 0;
 
-        // Actualizar lista de pendientes
         this.renderPendingUsers(data.usuarios_pendientes || []);
 
-        // Actualizar proyectos pendientes 
         this.renderProyectosPendientes(data.proyectos_pendientes_lista || []);
 
-        // Actualizar eventos
         this.renderProximosEventos(data.proximos_eventos || []);
 
-        // Actualizar noticias
         this.renderNoticiasRecientes(data.noticias_recientes || []);
     }
 
 
     renderPendingUsers(usuarios) {
         const container = document.getElementById('pending-users-list');
-        this.usuariosPendientesData = usuarios; // Guardar la data para el nuevo método
-        
+        this.usuariosPendientesData = usuarios; 
         if (usuarios.length === 0) {
             container.innerHTML = `
                 <tr>
@@ -102,13 +93,11 @@ class DirectivoDashboard {
         `).join('');
     }
     verDocumentacion(userId) {
-        // La URL base del backend.
         const BACKEND_BASE_URL = 'http://127.0.0.1:8000';
 
         const usuario = this.usuariosPendientesData.find(u => u.id === userId);
 
         if (usuario && usuario.documento_verificacion) {
-            // Construimos la URL completa. Nota que ahora añadimos "/media".
             const documentoUrl = `${BACKEND_BASE_URL}/media/${usuario.documento_verificacion}`;
             window.open(documentoUrl, '_blank');
         } else {
@@ -125,7 +114,6 @@ class DirectivoDashboard {
             return;
         }
 
-        // Limita la lista a los 3 eventos más recientes
         const eventosRecientes = eventos.slice(0,2);
 
         container.innerHTML = eventosRecientes.map(evento => `
@@ -149,7 +137,6 @@ class DirectivoDashboard {
             return;
         }
 
-        // Limita la lista a las 3 noticias más recientes
         const noticiasRecientes = noticias.slice(0, 2);
 
         container.innerHTML = noticiasRecientes.map(noticia => `

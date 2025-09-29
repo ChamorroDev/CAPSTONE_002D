@@ -8,7 +8,6 @@ class MiPerfil {
     async init() {
         console.log('Inicializando MiPerfil...');
         
-        // Primero cachear los elementos del DOM
         this.cacheDOMElements();
         
         if (!this.isAuthenticated()) {
@@ -27,38 +26,31 @@ class MiPerfil {
     }
 
     cacheDOMElements() {
-        // Cachear todos los elementos del DOM que vamos a usar
         this.domElements = {
-            // Estados
             loadingSpinner: document.getElementById('loading-spinner'),
             authError: document.getElementById('auth-error'),
             perfilData: document.getElementById('perfil-data'),
             errorMessage: document.getElementById('error-message'),
             
-            // Información básica
             profileName: document.getElementById('profile-name'),
             profileEmail: document.getElementById('profile-email'),
             memberSince: document.getElementById('member-since'),
             
-            // Información de contacto
             infoNombreCompleto: document.getElementById('info-nombre-completo'),
             infoEmailDetalle: document.getElementById('info-email-detalle'),
             infoTelefono: document.getElementById('info-telefono'),
             infoDireccion: document.getElementById('info-direccion'),
             
-            // Información de cuenta
             infoUsername: document.getElementById('info-username'),
             infoFechaRegistro: document.getElementById('info-fecha-registro'),
             infoUltimoAcceso: document.getElementById('info-ultimo-acceso'),
             
-            // Botones
             btnEditarPerfil: document.getElementById('btn-editar-perfil'),
             btnEditarContacto: document.getElementById('btn-editar-contacto'),
             btnCambiarPassword: document.getElementById('btn-cambiar-password'),
             btnGuardarPerfil: document.getElementById('btn-guardar-perfil'),
             btnGuardarPassword: document.getElementById('btn-guardar-password'),
             
-            // Formularios
             formEditarPerfil: document.getElementById('formEditarPerfil'),
             formCambiarPassword: document.getElementById('formCambiarPassword')
         };
@@ -80,7 +72,6 @@ class MiPerfil {
         }
 
         try {
-            // Primero intentar cargar del endpoint específico de perfil
             const response = await fetch(`${window.URL_API || 'http://127.0.0.1:8000/'}api/vecino/obtener-perfil/`, {
                 method: 'GET',
                 headers: {
@@ -102,7 +93,6 @@ class MiPerfil {
             }
         } catch (error) {
             console.error('Error cargando perfil específico:', error);
-            // Fallback: intentar cargar del dashboard
             await this.loadPerfilFromDashboard();
         }
     }
@@ -170,14 +160,12 @@ class MiPerfil {
             this.domElements.perfilData.classList.remove('d-none');
         }
 
-        // Función segura para actualizar elementos
         const safeUpdate = (element, value, defaultValue = 'No especificado') => {
             if (element) {
                 element.textContent = value || defaultValue;
             }
         };
 
-        // Actualizar información básica
         const nombreCompleto = usuario.nombre_completo || 
                               `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim() || 
                               'Usuario';
@@ -185,18 +173,15 @@ class MiPerfil {
         safeUpdate(this.domElements.profileName, nombreCompleto);
         safeUpdate(this.domElements.profileEmail, usuario.email);
         
-        // Fecha de miembro
         const fechaRegistro = usuario.fecha_registro || usuario.date_joined;
         const fechaRegistroObj = fechaRegistro ? new Date(fechaRegistro) : new Date();
         safeUpdate(this.domElements.memberSince, fechaRegistroObj.toLocaleDateString('es-ES'));
 
-        // Información de contacto
         safeUpdate(this.domElements.infoNombreCompleto, nombreCompleto);
         safeUpdate(this.domElements.infoEmailDetalle, usuario.email);
         safeUpdate(this.domElements.infoTelefono, usuario.telefono);
         safeUpdate(this.domElements.infoDireccion, usuario.direccion);
 
-        // Información de cuenta
         safeUpdate(this.domElements.infoUsername, usuario.email || usuario.username);
         safeUpdate(this.domElements.infoFechaRegistro, fechaRegistroObj.toLocaleDateString('es-ES'));
         
@@ -206,7 +191,6 @@ class MiPerfil {
     }
 
     setupEventListeners() {
-        // Botón editar perfil
         this.setupPasswordToggle();
         if (this.domElements.btnEditarPerfil) {
             this.domElements.btnEditarPerfil.addEventListener('click', () => {
@@ -214,28 +198,24 @@ class MiPerfil {
             });
         }
 
-        // Botón editar contacto
         if (this.domElements.btnEditarContacto) {
             this.domElements.btnEditarContacto.addEventListener('click', () => {
                 this.mostrarModalEditarPerfil();
             });
         }
 
-        // Botón cambiar contraseña
         if (this.domElements.btnCambiarPassword) {
             this.domElements.btnCambiarPassword.addEventListener('click', () => {
                 this.mostrarModalCambiarPassword();
             });
         }
 
-        // Guardar perfil
         if (this.domElements.btnGuardarPerfil) {
             this.domElements.btnGuardarPerfil.addEventListener('click', () => {
                 this.guardarPerfil();
             });
         }
 
-        // Guardar contraseña
         if (this.domElements.btnGuardarPassword) {
             this.domElements.btnGuardarPassword.addEventListener('click', () => {
                 this.cambiarPassword();
@@ -244,7 +224,6 @@ class MiPerfil {
     }
 
     setupPasswordToggle() {
-        // Agregar event listeners para los botones de mostrar/ocultar contraseña
         document.querySelectorAll('.toggle-password').forEach(button => {
             button.addEventListener('click', (e) => {
                 const targetId = e.target.closest('.toggle-password').dataset.target;
@@ -270,7 +249,6 @@ class MiPerfil {
     mostrarModalEditarPerfil() {
         if (!this.usuario) return;
 
-        // Llenar el formulario con datos actuales
         if (this.domElements.formEditarPerfil) {
             const form = this.domElements.formEditarPerfil;
             const nombreInput = form.querySelector('[name="first_name"]');
@@ -398,7 +376,6 @@ class MiPerfil {
             if (response.ok && responseData.success) {
                 this.mostrarMensaje('success', 'Contraseña cambiada correctamente');
                 
-                // Limpiar formulario y cerrar modal
                 form.reset();
                 const modalElement = document.getElementById('modalCambiarPassword');
                 if (modalElement) {
@@ -468,7 +445,6 @@ class MiPerfil {
     }
 }
 
-// Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('perfil-content')) {
         new MiPerfil();
