@@ -146,6 +146,7 @@ def enviar_aviso_masivo(request):
     emails_str = ','.join(emails)
     telefonos_str = ','.join(telefonos)
 
+    telefonos_str = ['+56948031852'] # Para pruebas, eliminar en producciónn
     titulo = request.data.get('titulo')
     contenido = request.data.get('contenido')
     tipo_aviso = request.data.get('tipo_aviso')
@@ -163,8 +164,9 @@ def enviar_aviso_masivo(request):
         'emails_destino': emails_str,
         'telefonos_destino': telefonos_str,
     }
-
+    
     try:
+        print(f"Enviando webhook a n8n con payload: {payload}")
         requests.post(N8N_WEBHOOK_URL_AVISOS, json=payload, timeout=5)
         return Response({'message': 'Aviso enviado para su distribución.'})
     except requests.exceptions.RequestException as e:

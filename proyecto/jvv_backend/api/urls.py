@@ -107,7 +107,7 @@ urlpatterns = [
     path('api/proyectos/<int:proyecto_id>/rechazar/', proyectos.rechazar_proyecto, name='rechazar_proyecto'),
     
     # Avisos masivos
-    path('api/directivo/avisos/enviar/', proyectos.enviar_aviso_masivo, name='enviar_aviso_masivo'),
+    path('api/directivo/enviar_aviso_masivo/', proyectos.enviar_aviso_masivo, name='enviar_aviso_masivo'),
     
     # Perfiles
     path('api/vecino/obtener-perfil/', perfiles.obtener_perfil, name='obtener_perfil'),
