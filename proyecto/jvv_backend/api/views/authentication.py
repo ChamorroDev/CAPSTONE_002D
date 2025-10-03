@@ -133,6 +133,7 @@ def send_verification_code(request):
 
 @csrf_exempt
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def verify_code(request):
     try:
         data = json.loads(request.body)
@@ -208,6 +209,7 @@ def verify_code(request):
 
 @csrf_exempt
 @api_view(["POST"])
+@permission_classes([permissions.AllowAny])
 def resend_code(request):
     """Reenviar código de verificación"""
     try:
@@ -232,7 +234,8 @@ def resend_code(request):
         if cache_data:
             cache.delete(cache_key)
         
-        return send_verification_code(request)
+        return send_verification_code(request._request)
+
         
     except json.JSONDecodeError:
         return JsonResponse({
@@ -248,6 +251,7 @@ def resend_code(request):
 
 @csrf_exempt
 @api_view(["POST"])
+@permission_classes([permissions.AllowAny])
 def reset_password(request):
     """Restablecer la contraseña después de verificación"""
     try:

@@ -3,81 +3,120 @@
 
 {% block content %}
 
-<!-- Sección de Cabecera con Banner -->
-<div class="position-relative text-white p-5 text-center" style="background: url('{% static 'img/mi barrio/eventos.png' %}') no-repeat center center; background-size: cover; min-height: 400px; display: flex; align-items: center; justify-content: center;">
-    <div class="overlay-bg position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+<!-- Sección de Cabecera con Banner Mejorado -->
+<div class="position-relative text-white p-4 p-md-5 text-center" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{% static 'img/mi barrio/eventos.png' %}') no-repeat center center; background-size: cover; min-height: 450px; display: flex; align-items: center; justify-content: center;">
     <div class="position-relative z-index-1">
-        <h1 class="display-4 fw-bold mb-3">Eventos de la Comunidad</h1>
-        <p class="lead mb-4">Mantente al día con lo que sucede en tu barrio.</p>
+        <h1 class="display-4 fw-bold mb-3 text-warning">Eventos de la Comunidad</h1>
+        <p class="lead mb-4 fs-5">Descubre y participa en los próximos eventos de tu barrio</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <span class="badge bg-primary fs-6 p-2">
+                <i class="bi bi-calendar-check me-2"></i>Eventos Futuros
+            </span>
+            <span class="badge bg-success fs-6 p-2">
+                <i class="bi bi-people me-2"></i>Comunidad Activa
+            </span>
+        </div>
     </div>
 </div>
 
 <div class="container py-5">
     <div class="row g-4">
-        <div class="col-lg-5 order-lg-2 calendar-container">
-            <div class="card shadow-sm p-3 p-md-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3 mb-md-4">
-                    <button class="btn btn-outline-primary calendar-nav-btn prev-month">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <h4 class="mb-0 fw-bold text-primary fs-5 fs-md-4" id="current-month">Cargando...</h4>
-                    <button class="btn btn-outline-primary calendar-nav-btn next-month">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
+        <!-- Columna de la Lista de Eventos (Ahora más prominente) -->
+        <div class="col-lg-8 order-lg-1">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0 fw-bold text-primary fs-3">
+                    <i class="bi bi-arrow-right-circle me-2"></i>Próximos Eventos
+                </h2>
+                <span class="badge bg-primary fs-6" id="contador-eventos"></span>
+            </div>
+            
+            <!-- Filtros Rápidos -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" id="buscador-eventos" placeholder="Buscar eventos...">
+                    </div>
                 </div>
-                
-                <div class="calendar-grid text-center" id="calendar-grid">
-                    <div class="fw-bold">Lun</div>
-                    <div class="fw-bold">Mar</div>
-                    <div class="fw-bold">Mié</div>
-                    <div class="fw-bold">Jue</div>
-                    <div class="fw-bold">Vie</div>
-                    <div class="fw-bold">Sáb</div>
-                    <div class="fw-bold">Dom</div>
+                <div class="col-md-6">
+                    <select class="form-select" id="filtro-estado">
+                        <option value="todos">Todos los eventos</option>
+                        <option value="disponibles">Con cupos disponibles</option>
+                        <option value="inscrito">Mis inscripciones</option>
+                    </select>
                 </div>
-                
-                <hr class="my-3 my-md-4">
-                <div class="d-grid gap-2 mb-3">
-                    <button class="btn d-none fw-semibold" id="btn-quitar-filtro">
-                        <i class="bi bi-x-circle me-1"></i> 
-                        <span class="d-none d-md-inline">Quitar Filtro</span>
-                    </button>
-                </div>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary btn-lg fw-bold" id="btn-ver-todos">
-                        <i class="bi bi-calendar3 me-1"></i> 
-                        <span>Ver Todos</span>
-                    </button>
-                    <button class="btn btn-outline-primary btn-lg fw-bold" id="btn-inscripciones">
-                        <i class="bi bi-ticket-perforated me-1"></i> 
-                        <span>Mis Inscripciones</span>
-                    </button>
+            </div>
+            
+            <div id="eventos-container">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="text-muted mt-3 fs-5">Cargando próximos eventos...</p>
                 </div>
             </div>
         </div>
 
-        <!-- Columna de la Lista de Eventos -->
-        <div class="col-lg-7 order-lg-1">
-            <h2 class="mb-3 mb-md-4 fs-4 fs-md-3">Próximos Eventos</h2>
-            <div id="eventos-container">
-                <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
+        <!-- Calendario (Sidebar) -->
+        <div class="col-lg-4 order-lg-2 calendar-container">
+            <div class="card shadow-lg border-0 h-100">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 fw-bold fs-5">
+                        <i class="bi bi-calendar3 me-2"></i>Calendario
+                    </h4>
+                </div>
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-light btn-sm calendar-nav-btn prev-month">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <h5 class="mb-0 fw-bold text-dark fs-6" id="current-month">Cargando...</h5>
+                        <button class="btn btn-light btn-sm calendar-nav-btn next-month">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
                     </div>
-                    <p class="text-muted mt-2">Cargando eventos...</p>
+                    
+                    <div class="calendar-grid text-center mb-3" id="calendar-grid">
+                        <div class="fw-bold text-muted small">Lun</div>
+                        <div class="fw-bold text-muted small">Mar</div>
+                        <div class="fw-bold text-muted small">Mié</div>
+                        <div class="fw-bold text-muted small">Jue</div>
+                        <div class="fw-bold text-muted small">Vie</div>
+                        <div class="fw-bold text-muted small">Sáb</div>
+                        <div class="fw-bold text-muted small">Dom</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm fw-semibold d-none" id="btn-quitar-filtro">
+                            <i class="bi bi-x-circle me-1"></i> 
+                            <span>Quitar Filtro</span>
+                        </button>
+                        <button class="btn btn-primary btn-sm fw-semibold" id="btn-ver-todos">
+                            <i class="bi bi-calendar3 me-1"></i> 
+                            <span>Ver Todos</span>
+                        </button>
+                        <button class="btn btn-success btn-sm fw-semibold" id="btn-inscripciones">
+                            <i class="bi bi-ticket-perforated me-1"></i> 
+                            <span>Mis Inscripciones</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para detalles del evento -->
+<!-- Los modales se mantienen igual -->
 <div class="modal fade" id="eventoModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="eventoModalTitle">Detalles del Evento</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="eventoModalTitle">
+                    <i class="bi bi-info-circle me-2"></i>Detalles del Evento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="eventoModalBody">
                 <!-- Contenido dinámico -->
@@ -95,16 +134,16 @@
 <div class="modal fade" id="inscripcionesModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-success text-white">
                 <h5 class="modal-title">
-                    <i class="bi bi-ticket-perforated"></i> Mis Inscripciones
+                    <i class="bi bi-ticket-perforated me-2"></i> Mis Inscripciones
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div id="inscripciones-container">
                     <div class="text-center py-4">
-                        <div class="spinner-border text-primary" role="status">
+                        <div class="spinner-border text-success" role="status">
                             <span class="visually-hidden">Cargando...</span>
                         </div>
                         <p class="text-muted mt-2">Cargando tus inscripciones...</p>
@@ -122,9 +161,11 @@
 <div class="modal fade" id="acompanantesModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Gestionar Acompañantes</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-people me-2"></i>Gestionar Acompañantes
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="acompanantesModalBody">
                 <!-- Formulario dinámico para acompañantes -->

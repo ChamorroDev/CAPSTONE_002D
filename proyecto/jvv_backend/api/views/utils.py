@@ -35,10 +35,12 @@ from ..permissions import EsAdministrador, EsDirectivo, EsVecino, PuedeGestionar
 from ..certificado import generar_certificado_pdf_vecino
 
 # ----- CONSTANTES -----
-N8N_WEBHOOK_URL = "http://localhost:5678/webhook-test/e1d296c6-c14b-451b-a1d3-2b0793e81c7b"
+N8N_WEBHOOK_URL = "http://localhost:5678/webhook/e1d296c6-c14b-451b-a1d3-2b0793e81c7b"
 N8N_WEBHOOK_URL_PROYECTOVECINAL = 'http://localhost:5678/webhook/bb27b5d2-4f46-400b-b01b-f24001de5847'
-N8N_WEBHOOK_URL_AVISOS = 'http://localhost:5678/webhook-test/6a6dc069-8dbe-4c3f-8f88-e5d4a330b4e2'
-N8N_WEBHOOK_URL_PASSWORD_RESET = "http://localhost:5678/webhook-test/9d9ef9d0-76df-446c-8b82-f90cbc79f997"
+N8N_WEBHOOK_URL_AVISOS = 'http://localhost:5678/webhook/6a6dc069-8dbe-4c3f-8f88-e5d4a330b4e2'
+N8N_WEBHOOK_URL_PASSWORD_RESET = "http://localhost:5678/webhook/9d9ef9d0-76df-446c-8b82-f90cbc79f998"
+N8N_WEBHOOK_URL_PASSWORD_CONFIRM = "http://localhost:5678/webhook/9d9ef9d0-76df-446c-8b82-f90cbc79f997"
+
 
 VERIFICATION_CODE_LENGTH = 6
 CODE_EXPIRATION_MINUTES = 5
@@ -112,7 +114,7 @@ def send_confirmation_email_via_n8n(email, user_name):
         }
         
         response = requests.post(
-            N8N_WEBHOOK_URL_PASSWORD_RESET,
+            N8N_WEBHOOK_URL_PASSWORD_CONFIRM,
             json=payload,
             timeout=10
         )

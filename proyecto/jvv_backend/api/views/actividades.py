@@ -484,15 +484,17 @@ def estadisticas_eventos(request):
         return Response({'error': f'Error al obtener estadísticas: {str(e)}'},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 @api_view(['GET'])
 @permission_classes([EsVecinoOdirector])
 def lista_eventos_vecino(request):
-
     try:
+        # Filtrar solo eventos futuros
+        ahora = timezone.now()
+        
         actividades = Actividad.objects.filter(
-            junta_vecinos=request.user.junta_vecinos
-        ).order_by('fecha')
+            junta_vecinos=request.user.junta_vecinos,
+            fecha__gte=ahora  # Solo eventos con fecha mayor o igual a ahora
+        ).order_by('fecha')  # Ordenar por fecha ascendente (más próximos primero)
         
         actividades_data = []
         for actividad in actividades:

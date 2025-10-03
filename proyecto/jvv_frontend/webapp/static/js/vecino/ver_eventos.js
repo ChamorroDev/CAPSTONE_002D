@@ -73,7 +73,20 @@ class GestorEventos {
         this.debouncedClick(this.domCache.btnInscribirse, () => this.prepararInscripcion());
         this.debouncedClick(this.domCache.btnCancelar, () => this.cancelarInscripcion());
         this.debouncedClick(this.domCache.btnConfirmarInscripcion, () => this.confirmarInscripcionConAcompanantes());
-
+        const buscador = document.getElementById('buscador-eventos');
+        const filtroEstado = document.getElementById('filtro-estado');
+        
+        if (buscador) {
+            buscador.addEventListener('input', this.debounce((e) => {
+                this.filtrarEventosPorTexto(e.target.value);
+            }, 300));
+        }
+        
+        if (filtroEstado) {
+            filtroEstado.addEventListener('change', (e) => {
+                this.filtrarEventosPorEstado(e.target.value);
+            });
+        }
         document.addEventListener('click', (e) => {
             if (e.target.closest('.btn-ver-detalles')) {
                 const btn = e.target.closest('.btn-ver-detalles');
@@ -123,6 +136,21 @@ class GestorEventos {
         this.renderCalendar();
         if (this.filtroDiaActivo) {
             this.mostrarEventosFiltrados();
+        }
+    }
+    filtrarEventosPorTexto(texto) {
+        const textoLower = texto.toLowerCase();
+        const eventosFiltrados = this.eventos.filter(evento => 
+            evento.titulo.toLowerCase().includes(textoLower) ||
+            evento.descripcion.toLowerCase().includes(textoLower)
+        );
+        this.renderEventos(eventosFiltrados);
+    }
+    actualizarContadorEventos() {
+        const contador = document.getElementById('contador-eventos');
+        if (contador) {
+            const eventosVisibles = this.domCache.eventosContainer?.querySelectorAll('.event-card').length || 0;
+            contador.textContent = `${eventosVisibles} eventos`;
         }
     }
 
@@ -189,6 +217,7 @@ class GestorEventos {
             return;
         }
 
+
         const tituloElement = document.querySelector('h2.mb-4');
         if (tituloElement) {
             tituloElement.innerHTML = this.filtroDiaActivo ? 
@@ -208,6 +237,23 @@ class GestorEventos {
 
         this.domCache.eventosContainer.innerHTML = '';
         this.domCache.eventosContainer.appendChild(fragment);
+        this.actualizarContadorEventos();
+        const ahora = new Date();
+        const en24Horas = new Date(ahora.getTime() + 24 * 60 * 60 * 1000);
+        document.querySelectorAll('.event-card').forEach(card => {
+        const eventoId = card.querySelector('.btn-ver-detalles')?.dataset.eventoId;
+        if (eventoId) {
+                const evento = this.eventos.find(e => e.id == eventoId);
+                if (evento) {
+                    const fechaEvento = new Date(evento.fecha);
+                    if (fechaEvento < en24Horas && fechaEvento > ahora) {
+                        card.classList.add('evento-urgente');
+                    } else if (fechaEvento < new Date(ahora.getTime() + 3 * 24 * 60 * 60 * 1000)) {
+                        card.classList.add('evento-proximo');
+                    }
+                }
+            }
+        });
     }
 
     crearElementoEvento(evento) {

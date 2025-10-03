@@ -1,298 +1,115 @@
-/* Estilos mejorados para el calendario */
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
-    margin-bottom: 1rem;
-}
-
-.day-item {
-    transition: all 0.3s ease;
-    cursor: pointer;
-    padding: 8px 6px;
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-    text-align: center;
-    font-weight: 500;
-    background: white;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-}
-
-.day-item:hover {
-    transform: translateY(-2px);
-    border-color: #0d6efd;
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
-}
-
-.day-item.has-events {
-    background: linear-gradient(135deg, #0d6efd, #0a58ca);
-    color: white !important;
-    border-color: #0a58ca;
-}
-
-.day-item.has-events:hover {
-    background: linear-gradient(135deg, #0a58ca, #084298);
-    border-color: #084298;
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
-}
-
-.day-item.bg-info {
-    background: linear-gradient(135deg, #0dcaf0, #0aa2c0) !important;
-    border-color: #0aa2c0 !important;
-    color: white !important;
-}
-
-.day-item.border-warning {
-    border: 2px solid #0d6efd !important;
-    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
-    background-color: #f0f7ff;
-    font-weight: 600;
-}
-
-/* Estilos para los botones de navegación */
-.calendar-nav-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.calendar-nav-btn:hover {
-    transform: scale(1.1);
-    background-color: #f8f9fa;
-}
-
-/* Estilos para el botón de quitar filtro */
-#btn-quitar-filtro {
-    border: 2px solid #6c757d;
-    color: #6c757d;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    background-color: transparent;
-}
-
-#btn-quitar-filtro:hover {
-    background-color: #6c757d;
-    color: white;
-    border-color: #6c757d;
-    transform: translateY(-1px);
-}
-
-#btn-quitar-filtro:focus {
-    box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.25);
-}
-
-/* Mejora para los botones principales */
-.d-grid.gap-2 .btn {
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.d-grid.gap-2 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Estilos para días vacíos */
-.calendar-grid .border-0 {
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-/* Días de la semana */
-.calendar-grid > div.fw-bold {
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    font-weight: 600 !important;
-    color: #495057;
-    word-break: keep-all;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Responsive para móviles */
-@media (max-width: 768px) {
-    .calendar-grid {
-        gap: 4px;
-    }
-    
-    .day-item {
-        padding: 6px 4px;
-        min-height: 35px;
-        font-size: 0.8rem;
-        border-radius: 8px;
-    }
-    
-    .calendar-grid > div.fw-bold {
-        padding: 8px 4px;
-        font-size: 0.8rem;
-    }
-    
-    /* Ajustar botones en móviles */
-    .d-grid.gap-2 .btn {
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-    
-    /* Ajustar navegación del calendario */
-    .calendar-nav-btn {
-        width: 35px;
-        height: 35px;
-    }
-    
-    #current-month {
-        font-size: 1.1rem;
-    }
-    
-    /* Mejoras responsive para cards de eventos */
-    .event-card .card-body {
-        padding: 0.75rem !important;
-        flex-direction: column !important;
-        text-align: center;
-    }
-    
-    .event-card .d-flex.align-items-center {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .event-card .me-4 {
-        margin-right: 0 !important;
-        margin-bottom: 1rem;
-    }
-    
-    .btn-ver-detalles {
-        margin-top: 1rem;
-        width: 100%;
-    }
-    
-    .event-card .card-title {
-        font-size: 1.1rem;
-    }
-    
-    /* Mejorar visualización de badges en móviles */
-    .badge-cupo {
-        font-size: 0.7rem;
-        padding: 0.25em 0.5em;
-    }
-    
-    .event-card .badge {
-        font-size: 0.75rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .day-item {
-        padding: 5px 3px;
-        min-height: 30px;
-        font-size: 0.75rem;
-    }
-    
-    .calendar-grid > div.fw-bold {
-        padding: 6px 3px;
-        font-size: 0.75rem;
-    }
-    
-    /* Ocultar texto en botones muy pequeños */
-    .d-grid.gap-2 .btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-    }
-    
-    .btn span.d-none.d-md-inline {
-        display: none !important;
-    }
-}
-
-/* Para tablets */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .day-item {
-        padding: 9px 7px;
-        min-height: 42px;
-        font-size: 0.95rem;
-    }
-}
-
-/* Mejorar layout general en móviles */
-@media (max-width: 992px) {
-    .container.py-5 {
-        padding: 1rem !important;
-    }
-    
-    .row.g-5 {
-        gap: 2rem !important;
-    }
-    
-    .col-lg-5.order-lg-2,
-    .col-lg-7.order-lg-1 {
-        order: unset !important;
-    }
-}
-
-/* Para que el calendario no se achique demasiado */
-@media (max-width: 400px) {
-    .calendar-grid {
-        gap: 3px;
-    }
-    
-    .day-item {
-        padding: 4px 2px;
-        min-height: 28px;
-        font-size: 0.7rem;
-    }
-    
-    .calendar-grid > div.fw-bold {
-        padding: 5px 2px;
-        font-size: 0.7rem;
-    }
-}
-
-/* Prevenir overflow en móviles */
-.calendar-container {
-    overflow-x: hidden;
-}
-
-/* Mejoras para modales en móviles */
-@media (max-width: 768px) {
-    .modal-dialog {
-        margin: 0.5rem;
-    }
-    
-    .modal-content {
-        border-radius: 12px;
-    }
-    
-    .modal-body {
-        padding: 1rem;
-    }
-}
-
-/* Asegurar que los eventos se vean bien en móviles */
+/* Estilos Mejorados para Eventos */
 .event-card {
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     border: none;
-    border-radius: 12px;
-    border-left: 4px solid #0d6efd;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 .event-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
 }
 
-.cupo-disponible {
+.event-card .card-body {
+    padding: 1.5rem;
+}
+
+.calendar-container .card {
+    border-radius: 15px;
+    border: none;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-grid > div {
+    padding: 8px 4px;
+    border-radius: 8px;
     font-size: 0.9rem;
 }
 
+.day-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
 
+.day-item:hover {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.day-item.has-events {
+    background-color: #e8f5e8;
+    font-weight: 600;
+}
+
+.day-item.has-events::after {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 4px;
+    background-color: #4caf50;
+    border-radius: 50%;
+    margin: 2px auto 0;
+}
+
+.day-item.bg-info {
+    background-color: #2196f3 !important;
+}
+
+.badge-cupo {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Spinner personalizado */
+.spinner-border {
+    --bs-spinner-width: 2rem;
+    --bs-spinner-height: 2rem;
+}
+
+/* Toast personalizado */
+.toast {
+    border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .event-card .card-body {
+        padding: 1rem;
+    }
+    
+    .calendar-grid > div {
+        padding: 6px 2px;
+        font-size: 0.8rem;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Estados de eventos */
+.evento-pasado {
+    opacity: 0.6;
+}
+
+.evento-proximo {
+    border-left: 4px solid #28a745 !important;
+}
+
+.evento-urgente {
+    border-left: 4px solid #dc3545 !important;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}

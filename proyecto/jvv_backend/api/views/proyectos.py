@@ -5,7 +5,7 @@ from ..permissions import *
 from django.shortcuts import get_object_or_404
 from datetime import  time
 from django.utils import timezone
-
+from ..models import CustomUser
 from .utils import (
     EsDirectivo, 
     _enviar_webhook_a_n8n, 
@@ -133,11 +133,11 @@ def rechazar_proyecto(request, proyecto_id):
     except IntegrityError as e:
         return Response({'error': str(e)}, status=500)
 
-N8N_WEBHOOK_URL_AVISOS = 'http://localhost:5678/webhook-test/6a6dc069-8dbe-4c3f-8f88-e5d4a330b4e2'
 @api_view(['POST'])
 @permission_classes([EsDirectivo])
 def enviar_aviso_masivo(request):
 
+    N8N_WEBHOOK_URL_AVISOS = 'http://localhost:5678/webhook/6a6dc069-8dbe-4c3f-8f88-e5d4a330b4e2'
     usuarios = CustomUser.objects.filter(rol='vecino', is_active=True)
 
     emails = [u.email for u in usuarios if u.email]
@@ -145,8 +145,7 @@ def enviar_aviso_masivo(request):
 
     emails_str = ','.join(emails)
     telefonos_str = ','.join(telefonos)
-
-    telefonos_str = ['+56948031852'] # Para pruebas, eliminar en producciónn
+    telefonos_str = '56948031852' # Para pruebas, enviar solo a este número
     titulo = request.data.get('titulo')
     contenido = request.data.get('contenido')
     tipo_aviso = request.data.get('tipo_aviso')
@@ -164,9 +163,8 @@ def enviar_aviso_masivo(request):
         'emails_destino': emails_str,
         'telefonos_destino': telefonos_str,
     }
-    
+
     try:
-        print(f"Enviando webhook a n8n con payload: {payload}")
         requests.post(N8N_WEBHOOK_URL_AVISOS, json=payload, timeout=5)
         return Response({'message': 'Aviso enviado para su distribución.'})
     except requests.exceptions.RequestException as e:

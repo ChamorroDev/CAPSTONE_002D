@@ -14,18 +14,34 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        64,
-        432
+        240,
+        -176
       ],
-      "id": "ec7fe673-90a3-411c-b704-78438abdb752",
+      "id": "ecc442e7-6e04-471a-84bf-b04ead26016c",
       "name": "Send email",
       "webhookId": "60795e5c-908c-489d-8d3e-838038b25d7c",
       "credentials": {
         "smtp": {
-          "id": "bOViACxKzOmlPHmx",
+          "id": "3ApPeBUPhqEfkiRA",
           "name": "SMTP account"
         }
       }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e1d296c6-c14b-451b-a1d3-2b0793e81c7b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        -128
+      ],
+      "id": "724ada9b-8c3f-4ba8-949c-78d7cd1834da",
+      "name": "Webhook",
+      "webhookId": "e1d296c6-c14b-451b-a1d3-2b0793e81c7b"
     },
     {
       "parameters": {
@@ -34,10 +50,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -416,
-        480
+        -240,
+        -128
       ],
-      "id": "13139bb2-a865-4776-9129-da40e45445dd",
+      "id": "eb739dc8-5f32-459e-95aa-e586d94a6546",
       "name": "Function"
     },
     {
@@ -51,15 +67,15 @@
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1,
       "position": [
-        64,
-        608
+        240,
+        0
       ],
-      "id": "57ad7a4f-d6e0-419a-9af2-a02a98bdbace",
+      "id": "8aca3ca4-f3c9-4df8-b365-c4c48a5c7ef5",
       "name": "Text",
       "webhookId": "2e22f807-2522-4321-a3e2-a261bf0a2acd",
       "credentials": {
         "whatsAppApi": {
-          "id": "7Eh5qnaxDUDh8SlI",
+          "id": "lk6OHOwwr0dxFtYg",
           "name": "WhatsApp account"
         }
       }
@@ -76,18 +92,34 @@
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1,
       "position": [
-        64,
-        800
+        240,
+        192
       ],
-      "id": "7a83b3a9-562c-440c-982c-adbbbe29338c",
+      "id": "e2e57b04-9f42-47a6-92ef-1ca23a9afa8d",
       "name": "PDF",
       "webhookId": "2e22f807-2522-4321-a3e2-a261bf0a2acd",
       "credentials": {
         "whatsAppApi": {
-          "id": "7Eh5qnaxDUDh8SlI",
+          "id": "lk6OHOwwr0dxFtYg",
           "name": "WhatsApp account"
         }
       }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bb27b5d2-4f46-400b-b01b-f24001de5847",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -560,
+        352
+      ],
+      "id": "46aa7f99-925b-485f-abdb-51154629e87a",
+      "name": "Webhook1",
+      "webhookId": "bb27b5d2-4f46-400b-b01b-f24001de5847"
     },
     {
       "parameters": {
@@ -117,10 +149,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -528,
-        960
+        -352,
+        352
       ],
-      "id": "899b276a-eebc-486b-ba5a-50f422c88e6d",
+      "id": "4e096e22-9401-40b2-b7c6-8132d9fdd1ed",
       "name": "If"
     },
     {
@@ -134,15 +166,15 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        -320,
-        880
+        -144,
+        272
       ],
-      "id": "bfe84d9d-98b8-40ef-8b88-862838448423",
+      "id": "6f576dda-600d-49fe-ab48-72cae1978227",
       "name": "Proyecto aprobado",
       "webhookId": "4bbaa096-997c-414b-9042-827694918834",
       "credentials": {
         "smtp": {
-          "id": "bOViACxKzOmlPHmx",
+          "id": "3ApPeBUPhqEfkiRA",
           "name": "SMTP account"
         }
       }
@@ -158,15 +190,15 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        -240,
-        1072
+        -64,
+        464
       ],
-      "id": "c99b644b-2e2b-4fab-b44c-7a9f0f0fdd9a",
+      "id": "950613da-9daa-4788-beff-6ecdf17b01c8",
       "name": "Proyecto rechazado",
       "webhookId": "6c2f79d5-c0f0-421d-8c84-e7afeaa98355",
       "credentials": {
         "smtp": {
-          "id": "bOViACxKzOmlPHmx",
+          "id": "3ApPeBUPhqEfkiRA",
           "name": "SMTP account"
         }
       }
@@ -180,12 +212,36 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -512,
-        144
+        -336,
+        -464
       ],
-      "id": "f32eb7df-7c28-468b-a85f-3189b77f38ae",
+      "id": "20f9a2de-d4e5-4c15-9f24-737154835e09",
       "name": "Envia avisos",
       "webhookId": "6a6dc069-8dbe-4c3f-8f88-e5d4a330b4e2"
+    },
+    {
+      "parameters": {
+        "fromEmail": "junta360digital@gmail.com",
+        "toEmail": "={{ $json.body.emails_destino }}",
+        "subject": "={{ $json.body.titulo }}",
+        "html": "={{ $json.body.contenido }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        176,
+        -608
+      ],
+      "id": "a146532c-ed29-4335-ac60-230cbdbeb7aa",
+      "name": "Send email1",
+      "webhookId": "67e53e3b-d526-4025-a50e-c1e7d8f85038",
+      "credentials": {
+        "smtp": {
+          "id": "3ApPeBUPhqEfkiRA",
+          "name": "SMTP account"
+        }
+      }
     },
     {
       "parameters": {
@@ -266,11 +322,67 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -256,
-        176
+        -80,
+        -432
       ],
-      "id": "a33b920d-e27f-463b-8947-2623c3c8eafa",
+      "id": "ce6c43fb-5070-4b5c-ab8f-852cfd56a4f2",
       "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=674778979062079",
+        "recipientPhoneNumber": "={{ $json.body.telefonos_destino }}",
+        "textBody": "{{$json.titulo}} + {{$json.contenido}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -352
+      ],
+      "id": "88039622-bb14-4cca-ad12-9a0f6d33bb7f",
+      "name": "Text1",
+      "webhookId": "2e22f807-2522-4321-a3e2-a261bf0a2acd",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lk6OHOwwr0dxFtYg",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9d9ef9d0-76df-446c-8b82-f90cbc79f997",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        656
+      ],
+      "id": "fab69daa-055e-4489-a327-9fdb9835fb82",
+      "name": "Password Reset Verification",
+      "webhookId": "9d9ef9d0-76df-446c-8b82-f90cbc79f997"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9d9ef9d0-76df-446c-8b82-f90cbc79f997",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        864
+      ],
+      "id": "ff6a42a0-667d-4f07-a40b-a1d7f1530c0f",
+      "name": "Password Change Confirmation",
+      "webhookId": "9d9ef9d0-76df-446c-8b82-f90cbc79f997"
     },
     {
       "parameters": {
@@ -285,15 +397,15 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        512,
-        1248
+        688,
+        640
       ],
-      "id": "9604b4e4-8528-4138-ae16-5260d5f96542",
-      "name": "Enviar email",
+      "id": "2bce4b98-6dec-4bbb-b554-6f3e83a9368a",
+      "name": "Send email2",
       "webhookId": "60795e5c-908c-489d-8d3e-838038b25d7c",
       "credentials": {
         "smtp": {
-          "id": "bOViACxKzOmlPHmx",
+          "id": "3ApPeBUPhqEfkiRA",
           "name": "SMTP account"
         }
       }
@@ -311,127 +423,15 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        528,
-        1504
+        704,
+        896
       ],
-      "id": "d5d62402-5764-4239-84b5-127cc4c898fd",
-      "name": "Enviar Email",
+      "id": "db5cfd17-5556-4386-a97e-0d45483789cc",
+      "name": "Send email3",
       "webhookId": "60795e5c-908c-489d-8d3e-838038b25d7c",
       "credentials": {
         "smtp": {
-          "id": "bOViACxKzOmlPHmx",
-          "name": "SMTP account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "9d9ef9d0-76df-446c-8b82-f90cbc79f998",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        240,
-        1264
-      ],
-      "id": "6f833b52-4b4d-4e18-a211-0c8822f3d9ca",
-      "name": "Enviar codigo de reset clave",
-      "webhookId": "9d9ef9d0-76df-446c-8b82-f90cbc79f997"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "9d9ef9d0-76df-446c-8b82-f90cbc79f997",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        240,
-        1472
-      ],
-      "id": "faab780d-b64a-4a59-898c-8abfc4bfe653",
-      "name": "Confirmación cambio de clave",
-      "webhookId": "9d9ef9d0-76df-446c-8b82-f90cbc79f997"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "bb27b5d2-4f46-400b-b01b-f24001de5847",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        -736,
-        960
-      ],
-      "id": "488063a6-a007-429f-a419-49892131bbf9",
-      "name": "Resolución proyecto vecinal",
-      "webhookId": "bb27b5d2-4f46-400b-b01b-f24001de5847"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "e1d296c6-c14b-451b-a1d3-2b0793e81c7b",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        -624,
-        480
-      ],
-      "id": "8c446fd4-6714-4347-b0ee-89fe120e5112",
-      "name": "Certificado residencia ",
-      "webhookId": "e1d296c6-c14b-451b-a1d3-2b0793e81c7b"
-    },
-    {
-      "parameters": {
-        "operation": "send",
-        "phoneNumberId": "=674778979062079",
-        "recipientPhoneNumber": "={{ $json.body.telefonos_destino }}",
-        "textBody": "=*{{$json.body.titulo}}* \n{{$json.body.contenido}}",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.whatsApp",
-      "typeVersion": 1,
-      "position": [
-        0,
-        240
-      ],
-      "id": "109f669e-090e-4cf9-889d-effbcf1b1a2d",
-      "name": "Texto",
-      "webhookId": "2e22f807-2522-4321-a3e2-a261bf0a2acd",
-      "credentials": {
-        "whatsAppApi": {
-          "id": "7Eh5qnaxDUDh8SlI",
-          "name": "WhatsApp account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "fromEmail": "junta360digital@gmail.com",
-        "toEmail": "={{ $json.body.emails_destino }}",
-        "subject": "={{ $json.body.titulo }}",
-        "html": "={{ $json.body.contenido }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        0,
-        0
-      ],
-      "id": "2414f9b6-ea96-4dcb-8770-24a78ac80a4a",
-      "name": "Enviar correo",
-      "webhookId": "67e53e3b-d526-4025-a50e-c1e7d8f85038",
-      "credentials": {
-        "smtp": {
-          "id": "bOViACxKzOmlPHmx",
+          "id": "3ApPeBUPhqEfkiRA",
           "name": "SMTP account"
         }
       }
@@ -439,6 +439,17 @@
   ],
   "pinData": {},
   "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Function": {
       "main": [
         [
@@ -454,6 +465,17 @@
           },
           {
             "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "If",
             "type": "main",
             "index": 0
           }
@@ -493,70 +515,48 @@
       "main": [
         [
           {
-            "node": "Enviar correo",
+            "node": "Send email1",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Texto",
+            "node": "Text1",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Enviar correo",
+            "node": "Send email1",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Texto",
+            "node": "Text1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Enviar codigo de reset clave": {
+    "Password Reset Verification": {
       "main": [
         [
           {
-            "node": "Enviar email",
+            "node": "Send email2",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Confirmación cambio de clave": {
+    "Password Change Confirmation": {
       "main": [
         [
           {
-            "node": "Enviar Email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Resolución proyecto vecinal": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Certificado residencia ": {
-      "main": [
-        [
-          {
-            "node": "Function",
+            "node": "Send email3",
             "type": "main",
             "index": 0
           }
@@ -564,15 +564,15 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "67edd326-8ba9-4d87-91a8-34cfbc882efa",
+  "versionId": "ffb8743d-a7c2-4bfd-b0d7-31a61eb1004b",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "fa1f81bfe7e762b521055c5b1385afb60f7c2cd3d2974a358d46db02a77775be"
+    "instanceId": "a6a8e5226cc4ffb702ef6592fcb908f935e7ab4812b42c0f10737d8df6fe0d2c"
   },
-  "id": "EBt28HRRL3CYkiDp",
+  "id": "oapt00BHZ6lAIKfq",
   "tags": []
 }
