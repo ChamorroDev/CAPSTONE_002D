@@ -13,9 +13,10 @@ Este proyecto corresponde al **CAPSTONE_002D – Grupo 3**.
 
 ## 🚀 Funcionalidades Principales  
 - Registro y autenticación de usuarios.  
-- Publicación y visualización de eventos comunitarios.  
+- Publicación y visualización de eventos comunitarios.
+- Automatización de certificados.  
 - Panel de gestión para directivos.  
-- Espacio de colaboración con vecinos aliados.  
+- Espacio de colaboración con vecinos.  
 - Reportes y estadísticas para toma de decisiones.  
 
 ---
