@@ -1,0 +1,69 @@
+/* Estilos para los campos de formulario */
+.form-control {
+    border-radius: 0.75rem;
+    background-color: #f0f3ff;
+    border: none;
+    padding: 0.8rem 1rem;
+    color: #333; /* Color del texto del input */
+    font-weight: 400;
+}
+
+.form-control::placeholder {
+    color: #8c96b5;
+    font-weight: 400;
+}
+
+.form-control:focus {
+    background-color: #e6e9f8;
+    box-shadow: 0 0 0 0.25rem rgba(97, 122, 250, 0.25);
+    border-color: #617AFA;
+    outline: none; /* Evita el resalte predeterminado del navegador */
+}
+
+/* El resto de tus estilos */
+
+/* Estilos para el contenedor del formulario */
+.card {
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.btn {
+    border-radius: 0.75rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+}
+
+.btn-custom {
+    background-color: #617AFA;
+    border-color: #617AFA;
+    color: #F7FAFC;
+    font-weight: 600;
+}
+
+.btn-custom:hover {
+    background-color: #4963e6;
+    border-color: #4963e6;
+    color: #F7FAFC;
+}
+
+.btn-secondary-custom {
+    background-color: #7987ff;
+    border-color: #7987ff;
+    color: #F7FAFC;
+}
+
+.btn-secondary-custom:hover {
+    background-color: #6a74e0;
+    border-color: #6a74e0;
+}
+
+/* Tipografía */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}

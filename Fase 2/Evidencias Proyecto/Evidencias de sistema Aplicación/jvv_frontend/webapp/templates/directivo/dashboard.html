@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel de Directivo - Junta de Vecinos{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/directivo_dashboard.css' %}">
+
+<div class="container-fluid px-0">
+<div class="row g-0">
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content">
+        <div id="app-messages" class="mt-3"></div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
+            <h1 class="h2 mb-0">
+                <i class="bi bi-speedometer2 text-primary me-2"></i>Panel de Control
+            </h1>
+            <div class="btn-group">
+                <button class="btn btn-primary btn-sm" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <a href="{% url 'usuarios_lista' %}" class="text-decoration-none card-link">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="card-title text-muted mb-1">Vecinos Registrados</h6>
+                                <h3 class="stat-number text-primary mb-0" id="total-vecinos">0</h3>
+                                <small class="text-muted">Personas activas</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="bi bi-people-fill text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </a>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <a href="{% url 'gestion_espacios' %}" class="text-decoration-none card-link">
+
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="card-title text-muted mb-1">Solicitudes de espacios Pendientes</h6>
+                                <h3 class="stat-number text-warning mb-0" id="pending-users-count">0</h3>
+                                <small class="text-muted">Esperando revisión</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="bi bi-person-check text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </a>
+            </div>
+
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <a href="{% url 'certificados_lista' %}" class="text-decoration-none card-link">
+                    <div class="card dashboard-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h6 class="card-title text-muted mb-1">Certificados Pendientes</h6>
+                                    <h3 class="stat-number text-info mb-0" id="pending-certificados">0</h3>
+                                    <small class="text-muted">Por procesar</small>
+                                </div>
+                                <div class="stat-icon">
+                                    <i class="bi bi-file-text text-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <a href="{% url 'proyectos_lista' %}" class="text-decoration-none card-link">
+                    <div class="card dashboard-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h6 class="card-title text-muted mb-1">Proyectos Pendientes</h6>
+                                    <h3 class="stat-number text-success mb-0" id="pending-proyectos">0</h3>
+                                    <small class="text-muted">En revisión</small>
+                                </div>
+                                <div class="stat-icon">
+                                    <i class="bi bi-lightbulb-fill text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="card dashboard-card mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-check me-2 text-warning"></i>Usuarios Pendientes de Aprobación
+                </h5>
+                <span class="badge bg-warning" id="pending-badge">0</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>RUT</th>
+                                <th>Email</th>
+                                <th>Fecha Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-users-list">
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <p class="text-muted mt-2">Cargando solicitudes...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card dashboard-card mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightbulb-fill me-2 text-success"></i>Proyectos Vecinales Pendientes
+                </h5>
+                <span class="badge bg-success" id="pending-proyectos-badge">0</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Título</th>
+                                <th>Solicitante</th>
+                                <th>Fecha de Solicitud</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-proyectos-list">
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <p class="text-muted mt-2">Cargando proyectos...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+            <div class="row mb-4">
+            <!-- Gestión de Noticias -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card dashboard-card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pb-0">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-newspaper me-2 text-primary"></i>Gestión de Noticias
+                        </h5>
+                    </div>
+                    <div class="card-body text-center d-flex flex-column">
+                        <div class="flex-grow-1">
+                            <p class="card-text text-muted mb-3">Crea y gestiona las noticias que verán los vecinos.</p>
+                        </div>
+                        <a href="{% url 'gestion_noticias' %}" class="btn btn-primary btn-hover-gradient">
+                            <i class="bi bi-pencil-square me-2"></i>Ir a Noticias
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de Eventos -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card dashboard-card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pb-0">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-calendar-event me-2 text-success"></i>Gestión de Eventos
+                        </h5>
+                    </div>
+                    <div class="card-body text-center d-flex flex-column">
+                        <div class="flex-grow-1">
+                            <p class="card-text text-muted mb-3">Crea y gestiona los eventos que podrán asistir los vecinos.</p>
+                        </div>
+                        <a href="{% url 'gestion_eventos' %}" class="btn btn-success btn-hover-gradient">
+                            <i class="bi bi-calendar-plus me-2"></i>Ir a Eventos
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Envío de Avisos -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card dashboard-card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pb-0">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-envelope me-2 text-info"></i>Envío de Avisos
+                        </h5>
+                    </div>
+                    <div class="card-body text-center d-flex flex-column">
+                        <div class="flex-grow-1">
+                            <p class="card-text text-muted mb-3">Envía correos electrónicos o mensajes a todos los vecinos.</p>
+                        </div>
+                        <a href="{% url 'enviar_avisos' %}" class="btn btn-primary btn-hover-gradient">
+                            <i class="bi bi-envelope-fill me-2"></i>Enviar Aviso
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-lg-8 mb-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-bar-chart me-2 text-primary"></i>Estadísticas de Solicitudes
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="solicitudesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-calendar-event me-2 text-success"></i>Próximos Eventos
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="proximos-eventos">
+                            <div class="text-center py-3">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="text-muted mt-2">Cargando eventos...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card dashboard-card">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-newspaper me-2 text-info"></i>Noticias Recientes
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="noticias-recientes">
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="text-muted mt-2">Cargando noticias...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</div>
+
+<div class="overlay d-md-none" id="sidebar-overlay"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="{% static 'js/directivo/dashboard.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,277 @@
+:root {
+    --sidebar-bg: #2c3e50;
+    --sidebar-width: 250px;
+    --primary-color: #2563eb;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #06b6d4;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* Overlay para móvil */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s 0.3s;
+}
+
+.overlay.show {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease;
+}
+
+/* Sidebar Mejorado */
+#sidebar {
+    background: var(--sidebar-bg);
+    min-height: 100vh;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.sidebar-logo {
+    max-width: 100%;
+}
+
+#sidebar .nav-link {
+    color: #ecf0f1;
+    padding: 12px 15px;
+    margin: 5px 0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+#sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateX(5px);
+}
+
+#sidebar .nav-link.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Contenido Principal */
+.content {
+    padding: 20px;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+/* Tarjetas del Dashboard */
+.dashboard-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    opacity: 0.7;
+}
+
+/* Tablas */
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: #f8f9fa;
+}
+
+/* Botones de Acción */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1050;
+        width: var(--sidebar-width);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 4px 0 10px rgba(0,0,0,0.15);
+    }
+
+    #sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .content {
+        margin-left: 0 !important;
+    }
+
+    .sidebar-toggle {
+        position: fixed;
+        top: 100px;
+        left: 15px;
+        z-index: 1060;
+    }
+}
+
+/* Badges */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5em 0.75em;
+}
+
+/* Loading States */
+.spinner-border {
+    color: var(--primary-color);
+}
+
+/* Cards específicas */
+.card-header {
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+    font-weight: 600;
+}
+
+/* Gráficos */
+.chart-container {
+    position: relative;
+}
+/* Estilos para las cards del dashboard */
+.dashboard-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dashboard-card .card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #e9ecef;
+}
+
+.dashboard-card .card-title {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Botones con gradiente y efectos */
+.btn-hover-gradient {
+    position: relative;
+    overflow: hidden;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 500;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-hover-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-hover-gradient:hover::before {
+    left: 100%;
+}
+
+.btn-hover-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Colores específicos para cada botón */
+.btn-primary.btn-hover-gradient {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.btn-success.btn-hover-gradient {
+    background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+}
+
+.btn-info.btn-hover-gradient {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+}
+
+/* Efecto de iconos */
+.dashboard-card .bi {
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover .bi {
+    transform: scale(1.1);
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .btn-hover-gradient {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .dashboard-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+    }
+}
+
+/* Para tablets */
+@media (min-width: 769px) and (max-width: 992px) {
+    .col-lg-4 {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Mejora de la tipografía */
+.card-text {
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Efecto de borde sutil en hover */
+.dashboard-card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card:hover {
+    border-color: rgba(0, 0, 0, 0.15);
+}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Postular Proyecto Vecinal - Vecinos Unidos{% endblock %}
+
+{% block content %}
+<script src="{% static 'js/vecino/solicitud-proyecto.js' %}"></script>
+
+<main class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4 text-primary"><i class="bi bi-lightbulb"></i> Postular Proyecto Vecinal</h2>
+                    <div id="proyecto-message"></div>
+                    <form id="proyectoForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_titulo" class="form-label">Título del Proyecto</label>
+                            <input type="text" class="form-control" id="id_titulo" name="titulo" placeholder="Ingresa un título para tu proyecto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_descripcion" class="form-label">Descripción del Proyecto</label>
+                            <textarea class="form-control" id="id_descripcion" name="descripcion" rows="5" placeholder="Describe tu idea, los objetivos y cómo beneficiaría a la comunidad" required></textarea>
+                        </div>
+                
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send"></i> Enviar Postulación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <h3 class="mt-5 mb-3 text-primary"><i class="bi bi-clock-history"></i> Mis Postulaciones Anteriores</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Título</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Revisión</th>
+                            </tr>
+                        </thead>
+                        <tbody id="proyectos-table-body">
+                            </tbody>
+                    </table>
+                </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

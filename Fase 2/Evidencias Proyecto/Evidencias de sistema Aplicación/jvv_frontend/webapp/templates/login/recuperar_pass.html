@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recuperar Contraseña - Junta de Vecinos{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/login/recuperar_pass.css' %}">
+
+<div class="recuperar-pass-container">
+    <div class="container-fluid">
+        <div class="row justify-content-center align-items-center min-vh-100 py-4">
+            <div class="col-xxl-5 col-lg-6 col-md-8 col-sm-10 col-12">
+                <div class="recuperar-pass-card">
+                    
+                    <!-- Header -->
+                    <div class="recuperar-pass-header">
+                        <div class="recuperar-pass-icon">
+                            <div class="recuperar-pass-icon-wrapper">
+                                <i class="bi bi-shield-lock"></i>
+                            </div>
+                        </div>
+                        <h1 class="recuperar-pass-title">Recuperar Contraseña</h1>
+                        <p class="recuperar-pass-subtitle">
+                            <span class="d-none d-md-inline">Sigue estos 3 simples pasos para recuperar el acceso a tu cuenta</span>
+                            <span class="d-md-none">3 pasos simples para recuperar tu acceso</span>
+                        </p>
+                    </div>
+                    
+                    <div class="recuperar-pass-body">
+                        <!-- Progress bar -->
+                        <div class="recuperar-pass-progress">
+                            <div class="recuperar-pass-progress-track">
+                                <div class="recuperar-pass-step" data-step="1">
+                                    <div class="recuperar-pass-step-circle active">
+                                        <i class="bi bi-envelope"></i>
+                                        <div class="recuperar-pass-step-number">1</div>
+                                    </div>
+                                    <span class="recuperar-pass-step-label">
+                                        <span class="d-none d-sm-inline">Verificar</span>
+                                        <span class="d-sm-none">Email</span>
+                                    </span>
+                                </div>
+                                <div class="recuperar-pass-step" data-step="2">
+                                    <div class="recuperar-pass-step-circle">
+                                        <i class="bi bi-shield-check"></i>
+                                        <div class="recuperar-pass-step-number">2</div>
+                                    </div>
+                                    <span class="recuperar-pass-step-label">
+                                        <span class="d-none d-sm-inline">Ingresar</span>
+                                        <span class="d-sm-none">Código</span>
+                                    </span>
+                                </div>
+                                <div class="recuperar-pass-step" data-step="3">
+                                    <div class="recuperar-pass-step-circle">
+                                        <i class="bi bi-key"></i>
+                                        <div class="recuperar-pass-step-number">3</div>
+                                    </div>
+                                    <span class="recuperar-pass-step-label">
+                                        <span class="d-none d-sm-inline">Contraseña</span>
+                                        <span class="d-sm-none">Pass</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="recoveryForm" class="recuperar-pass-form">
+                            
+                            <!-- Paso 1: Email -->
+                            <div class="recuperar-pass-step-content active" id="step-email">
+                                <h4 class="recuperar-pass-step-title">
+                                    <i class="bi bi-envelope-check text-primary"></i>
+                                    <span class="d-none d-sm-inline">Verifica tu identidad</span>
+                                    <span class="d-sm-none">Verificar identidad</span>
+                                </h4>
+                                
+                                <div class="recuperar-pass-form-section">
+                                    <label for="email" class="recuperar-pass-form-label">
+                                        <span class="d-none d-md-inline">Correo electrónico registrado</span>
+                                        <span class="d-md-none">Correo electrónico</span>
+                                    </label>
+                                    <div class="recuperar-pass-input-group input-group input-group-lg">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-envelope-at text-muted"></i>
+                                        </span>
+                                        <input type="email" class="form-control" id="email" 
+                                            placeholder="ejemplo@correo.com" required>
+                                    </div>
+                                    <div class="recuperar-pass-form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        <span class="d-none d-md-inline">Te enviaremos un código de verificación de 6 dígitos a este correo.</span>
+                                        <span class="d-md-none">Recibirás un código de 6 dígitos.</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="button" class="recuperar-pass-btn recuperar-pass-btn-primary recuperar-pass-btn-lg" id="btn-send-code">
+                                        <i class="bi bi-send me-2"></i>
+                                        <span class="d-none d-sm-inline">Enviar Código de Verificación</span>
+                                        <span class="d-sm-none">Enviar Código</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Paso 2: Código -->
+                            <div class="recuperar-pass-step-content" id="step-code">
+                                <h4 class="recuperar-pass-step-title">
+                                    <i class="bi bi-shield-check text-primary"></i>
+                                    <span class="d-none d-sm-inline">Verifica tu código</span>
+                                    <span class="d-sm-none">Verificar código</span>
+                                </h4>
+                                
+                                <div class="recuperar-pass-alert recuperar-pass-alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-info-circle fs-5 me-3"></i>
+                                        <div>
+                                            <strong class="d-block">Código enviado</strong>
+                                            <span class="small">
+                                                <span class="d-none d-md-inline">Revisa tu bandeja de entrada en: </span>
+                                                <strong id="email-display" class="text-dark"></strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="recuperar-pass-form-section">
+                                    <label for="verification-code" class="recuperar-pass-form-label">
+                                        <span class="d-none d-md-inline">Código de verificación</span>
+                                        <span class="d-md-none">Código</span>
+                                    </label>
+                                    <div class="recuperar-pass-code-container">
+                                        <div class="recuperar-pass-input-group input-group input-group-lg">
+                                            <span class="input-group-text">
+                                                <i class="bi bi-key text-muted"></i>
+                                            </span>
+                                            <input type="text" class="form-control text-center fw-bold fs-5" 
+                                                id="verification-code" placeholder="000000" maxlength="6" 
+                                                pattern="[0-9]{6}" required>
+                                        </div>
+                                        <div class="recuperar-pass-code-actions">
+                                            <button type="button" class="btn btn-outline-secondary" id="btn-resend-code">
+                                                <i class="bi bi-arrow-clockwise me-2"></i>
+                                                <span class="d-none d-sm-inline">Reenviar código</span>
+                                                <span class="d-sm-none">Reenviar</span>
+                                            </button>
+                                            <span class="text-muted small">
+                                                <i class="bi bi-clock me-1"></i>
+                                                <span class="d-none d-sm-inline">Válido por: </span>
+                                                <span id="countdown" class="fw-semibold text-warning">10:00</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="button" class="recuperar-pass-btn recuperar-pass-btn-primary recuperar-pass-btn-lg" id="btn-verify-code">
+                                        <i class="bi bi-check-circle me-2"></i>
+                                        <span class="d-none d-sm-inline">Verificar y Continuar</span>
+                                        <span class="d-sm-none">Verificar</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Paso 3: Contraseña -->
+                            <div class="recuperar-pass-step-content" id="step-password">
+                                <h4 class="recuperar-pass-step-title">
+                                    <i class="bi bi-key text-primary"></i>
+                                    <span class="d-none d-sm-inline">Crea tu nueva contraseña</span>
+                                    <span class="d-sm-none">Nueva contraseña</span>
+                                </h4>
+                                
+                                <div class="recuperar-pass-alert recuperar-pass-alert-success">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-check-circle fs-5 me-3"></i>
+                                        <div>
+                                            <strong class="d-block">¡Identidad verificada!</strong>
+                                            <span class="small">
+                                                <span class="d-none d-md-inline">Ahora puedes crear tu nueva contraseña segura</span>
+                                                <span class="d-md-none">Crea tu nueva contraseña</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="recuperar-pass-form-section">
+                                    <label for="new-password" class="recuperar-pass-form-label">
+                                        <span class="d-none d-md-inline">Nueva contraseña</span>
+                                        <span class="d-md-none">Contraseña</span>
+                                    </label>
+                                    <div class="recuperar-pass-input-group input-group input-group-lg mb-3">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-lock text-muted"></i>
+                                        </span>
+                                        <input type="password" class="form-control" 
+                                            id="new-password" placeholder="Mínimo 8 caracteres" required>
+                                        <button type="button" class="btn btn-outline-secondary toggle-password" 
+                                                data-target="new-password">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="recuperar-pass-strength">
+                                        <div class="recuperar-pass-strength-header">
+                                            <small class="fw-semibold">
+                                                <span class="d-none d-sm-inline">Seguridad de la contraseña:</span>
+                                                <span class="d-sm-none">Seguridad:</span>
+                                            </small>
+                                            <small class="fw-bold" id="password-strength-text">Débil</small>
+                                        </div>
+                                        <div class="recuperar-pass-strength-bar">
+                                            <div class="recuperar-pass-strength-progress" id="password-strength-bar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="recuperar-pass-form-section">
+                                    <label for="confirm-password" class="recuperar-pass-form-label">
+                                        <span class="d-none d-md-inline">Confirmar nueva contraseña</span>
+                                        <span class="d-md-none">Confirmar</span>
+                                    </label>
+                                    <div class="recuperar-pass-input-group input-group input-group-lg">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-lock-fill text-muted"></i>
+                                        </span>
+                                        <input type="password" class="form-control" 
+                                            id="confirm-password" placeholder="Repite tu contraseña" required>
+                                        <button type="button" class="btn btn-outline-secondary toggle-password" 
+                                                data-target="confirm-password">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="recuperar-pass-form-text" id="password-match-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        <span class="d-none d-sm-inline">Las contraseñas deben coincidir exactamente</span>
+                                        <span class="d-sm-none">Las contraseñas deben coincidir</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="submit" class="recuperar-pass-btn recuperar-pass-btn-success recuperar-pass-btn-lg" id="btn-reset-password">
+                                        <i class="bi bi-check-lg me-2"></i>
+                                        <span class="d-none d-sm-inline">Restablecer Contraseña</span>
+                                        <span class="d-sm-none">Restablecer</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- Sección de ayuda -->
+                        <div class="recuperar-pass-help">
+                            <div class="recuperar-pass-help-section">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <i class="bi bi-question-circle fs-2 text-primary"></i>
+                                    </div>
+                                    <div class="col">
+                                        <div class="recuperar-pass-help-content">
+                                            <h5>¿Necesitas ayuda?</h5>
+                                            <p>
+                                                <span class="d-none d-md-inline">
+                                                    Si no recibes el código de verificación después de unos minutos, revisa tu carpeta de spam o 
+                                                    <a href="{% url 'contacto' %}" class="fw-semibold text-decoration-none">contacta a nuestro equipo de soporte</a>.
+                                                </span>
+                                                <span class="d-md-none">
+                                                    ¿Problemas con el código? Revisa spam o 
+                                                    <a href="{% url 'contacto' %}" class="fw-semibold text-decoration-none">contacta soporte</a>.
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="recuperar-pass-footer">
+                        <a href="{% url 'login' %}" class="recuperar-pass-back-link">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            <span class="d-none d-sm-inline">Volver al Inicio de Sesión</span>
+                            <span class="d-sm-none">Volver al Login</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/login/recuperar_pass.js' %}"></script>
+
+{% endblock %}
