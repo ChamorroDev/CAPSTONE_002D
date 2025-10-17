@@ -32,8 +32,8 @@ Este proyecto corresponde al **CAPSTONE_002D – Grupo 3**.
 
 ## 📂 Estructura del Repositorio  
 ```bash
-├── /frontend       # Código del cliente (React)
-├── /backend        # API y lógica de negocio (Node.js + Express)
+├── /frontend       # Código del cliente (django)
+├── /backend        # API y lógica de negocio (django)
 └── README.md       # Documento principal del proyecto
 ⚙️ Instalación y Configuración
 
