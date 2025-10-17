@@ -1,0 +1,18 @@
+{% if messages %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    {% for m in messages %}
+        (function(){
+            var tags = "{{ m.tags }}".toLowerCase();
+            var type = 'info';
+            if (tags.indexOf('success') !== -1) type = 'success';
+            else if (tags.indexOf('error') !== -1 || tags.indexOf('danger') !== -1) type = 'danger';
+            else if (tags.indexOf('warning') !== -1) type = 'warning';
+            // escape message content for JS
+            var msg = "{{ m|escapejs }}";
+            Notifications.showToast("", msg, type);
+        })();
+    {% endfor %}
+});
+</script>
+{% endif %}

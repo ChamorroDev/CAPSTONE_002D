@@ -34,6 +34,7 @@ urlpatterns = [
     path('enviar_avisos/', views.enviar_avisos, name='enviar_avisos'),
     path('gestion_noticias/', views.gestion_noticias, name='gestion_noticias'),
     path('gestion_noticias/editar/<int:pk>/', views.editar_noticias, name='editar_noticias'),
+    path('gestion_noticias/crear', views.crear_noticia, name='crear_noticia'),
     path('gestion_espacios/', views.gestion_espacios, name='gestion_espacios'),
     path('edicion_espacios/', views.edicion_espacios, name='edicion_espacios'),
     path('gestion_eventos/', views.gestion_eventos, name='gestion_eventos'),

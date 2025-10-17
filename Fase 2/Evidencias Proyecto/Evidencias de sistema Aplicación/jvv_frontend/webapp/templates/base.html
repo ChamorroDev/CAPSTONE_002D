@@ -128,6 +128,38 @@
         </div>
     </footer>
 
+    <!-- Modal estándar para avisos -->
+    <div class="modal fade" id="appModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="appModalTitle">Título</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body" id="appModalBody">Mensaje...</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="appModalConfirmBtn">Aceptar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast estándar -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+      <div id="appToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto" id="appToastTitle">Aviso</strong>
+          <small class="text-muted" id="appToastTime"></small>
+          <button type="button" class="btn-close ms-2 mb-1" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+        <div class="toast-body" id="appToastBody"></div>
+      </div>
+    </div>
+
+    <!-- Notificaciones centralizadas -->
+    <script src="{% static 'js/base/notifications.js' %}"></script>
+
     <!-- Scripts personalizados --> 
     <script>
         const miPerfilUrl = "{% url 'mi_perfil' %}";

@@ -38,6 +38,10 @@ Este proyecto corresponde al **CAPSTONE_002D – Grupo 3**.
 ⚙️ Instalación y Configuración
 
 
+Carga inicial de datos 
+
+python manage.py load_initial_data --force
+
 
 📄 Licencia
 Este proyecto está bajo la licencia MIT.

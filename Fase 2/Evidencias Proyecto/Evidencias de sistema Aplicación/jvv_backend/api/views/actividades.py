@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.db.models import Q, F, Sum
 from .utils import *
 
 @api_view(['GET'])
@@ -66,7 +66,6 @@ def detalle_actividad(request, actividad_id):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 @api_view(['POST'])
 @permission_classes([EsVecinoOdirector])
 def inscribir_actividad(request, actividad_id):
@@ -79,38 +78,47 @@ def inscribir_actividad(request, actividad_id):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        inscritos_count = InscripcionActividad.objects.filter(actividad=actividad).count()
-        if actividad.cupo_maximo > 0 and inscritos_count >= actividad.cupo_maximo:
+        cantidad_acompanantes = request.data.get('cantidad_acompanantes', 0)
+        nombres_acompanantes = request.data.get('nombres_acompanantes', [])
+        
+        try:
+            cantidad_acompanantes = int(cantidad_acompanantes)
+        except (ValueError, TypeError):
             return Response(
-                {'error': 'No hay cupos disponibles para esta actividad'}, 
+                {'error': 'cantidad_acompanantes debe ser un número válido'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if InscripcionActividad.objects.filter(actividad=actividad, vecino=request.user).exists():
+        if cantidad_acompanantes > 0 and len(nombres_acompanantes) != cantidad_acompanantes:
             return Response(
-                {'error': 'Ya estás inscrito en esta actividad'}, 
+                {'error': f'Debe proporcionar {cantidad_acompanantes} nombres de acompañantes'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        puede_inscribirse, mensaje = actividad.puede_inscribirse(request.user, cantidad_acompanantes)
+        if not puede_inscribirse:
+            return Response({'error': mensaje}, status=status.HTTP_400_BAD_REQUEST)
         
         inscripcion = InscripcionActividad.objects.create(
             actividad=actividad,
-            vecino=request.user
+            vecino=request.user,
+            cantidad_acompanantes=cantidad_acompanantes,
+            nombres_acompanantes=nombres_acompanantes
         )
         
+        total_personas = 1 + cantidad_acompanantes
+        
         return Response({
-            'success': 'Inscripción realizada correctamente',
-            'cupos_restantes': actividad.cupo_maximo - (inscritos_count + 1) if actividad.cupo_maximo > 0 else None
+            'success': f'Inscripción exitosa para {total_personas} personas',
+            'total_personas_inscritas': total_personas
         }, status=status.HTTP_201_CREATED)
         
     except Actividad.DoesNotExist:
-        print("Ha ocurrido una excepción:", IntegrityError)
         return Response({'error': 'Actividad no encontrada'}, status=status.HTTP_404_NOT_FOUND)
     except IntegrityError:
-        print("Ha ocurrido una excepción:", IntegrityError)
         return Response({'error': 'Ya estás inscrito en esta actividad'}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        print("Ha ocurrido una excepción:", e)
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': f'Error al inscribirse: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['DELETE'])
 @permission_classes([EsVecinoOdirector])
@@ -212,6 +220,14 @@ def crear_evento(request):
         data['junta_vecinos'] = request.user.junta_vecinos.id
         data['creada_por'] = request.user.id
 
+        keys_to_delete = []
+        for key, value in data.items():
+            if isinstance(value, str) and value == '':
+                keys_to_delete.append(key)
+        
+        for key in keys_to_delete:
+            del data[key]
+
         serializer = ActividadSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():
@@ -227,6 +243,7 @@ def crear_evento(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
     except Exception as e:
+        print(f"Error al crear evento: {str(e)}")
         return Response({'error': f'Error al crear evento: {str(e)}'},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -488,13 +505,12 @@ def estadisticas_eventos(request):
 @permission_classes([EsVecinoOdirector])
 def lista_eventos_vecino(request):
     try:
-        # Filtrar solo eventos futuros
         ahora = timezone.now()
         
         actividades = Actividad.objects.filter(
             junta_vecinos=request.user.junta_vecinos,
-            fecha__gte=ahora  # Solo eventos con fecha mayor o igual a ahora
-        ).order_by('fecha')  # Ordenar por fecha ascendente (más próximos primero)
+            fecha__gte=ahora  
+        ).order_by('fecha')  
         
         actividades_data = []
         for actividad in actividades:
@@ -650,7 +666,6 @@ def lista_eventos_directivo(request):
             junta_vecinos=request.user.junta_vecinos
         ).order_by('-fecha')
 
-        # Filtros
         search = request.GET.get('search', '')
         estado = request.GET.get('estado', '')
 
@@ -673,17 +688,19 @@ def lista_eventos_directivo(request):
 
         serializer = ActividadSerializer(eventos, many=True, context={'request': request})
 
-        # Estadísticas
         ahora = timezone.now()
         total_eventos = eventos.count()
         proximos_eventos = eventos.filter(fecha__gt=ahora).count()
         eventos_hoy = eventos.filter(fecha__date=ahora.date()).count()
 
-        total_personas_inscritas = sum(
-            (1 + inscripcion.cantidad_acompanantes)
-            for evento in eventos
-            for inscripcion in evento.inscripciones.all()
+        total_inscritos_db = Actividad.objects.filter(
+            junta_vecinos=request.user.junta_vecinos,  
+            fecha__gt=ahora  
+        ).aggregate(
+            total=Sum(F('inscripciones__cantidad_acompanantes') + 1)
         )
+
+        total_personas_inscritas = total_inscritos_db.get('total') or 0
 
         data = {
             'eventos': serializer.data,

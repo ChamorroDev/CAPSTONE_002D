@@ -33,7 +33,6 @@ urlpatterns = [
     
     # Noticias publicas
     path('api/noticias/', noticias.NoticiaListCreateView.as_view(), name='noticia-list-create'),
-    path('api/noticias/<int:pk>/', noticias.NoticiaDetailView.as_view(), name='noticia-detail'),
     # Noticias
     path('noticias/', noticias.noticias_publicas_api, name='noticias-list'),
     path('api/noticias/<int:noticia_id>/', noticias.detalle_noticia_api, name='detalle_noticia_api'),

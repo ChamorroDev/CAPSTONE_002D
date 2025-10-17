@@ -1,6 +1,3 @@
-/* gestion_eventos.js
-   Versión corregida y mejorada
-*/
 
 class GestionEventos {
     constructor() {
@@ -100,6 +97,7 @@ class GestionEventos {
 
             const data = await res.json();
             this.eventos = data.eventos || data || [];
+            this.estadisticas = data.estadisticas || {};
             this.actualizarEstadisticas();
             this.renderEventos();
         } catch (err) {
@@ -122,7 +120,6 @@ class GestionEventos {
 
     actualizarEstadisticas() {
         const ahora = new Date();
-
         const totalEventos = this.eventos.length;
         const proximosEventos = this.eventos.filter(e => new Date(e.fecha) > ahora).length;
         const eventosHoy = this.eventos.filter(e => {
@@ -130,20 +127,14 @@ class GestionEventos {
             return fe.toDateString() === ahora.toDateString();
         }).length;
 
-        // Cálculo corregido de inscritos
-        const totalInscritos = this.eventos.reduce((acc, e) => {
-            // Usar inscritos_count si está disponible, sino calcular
-            if (e.inscritos_count !== undefined) return acc + e.inscritos_count;
-            if (e.cupo_maximo !== undefined && e.cupos_disponibles !== undefined) {
-                return acc + (e.cupo_maximo - e.cupos_disponibles);
-            }
-            return acc;
-        }, 0);
+        const totalInscritos = this.estadisticas?.total_personas_inscritas || 0; 
 
         this.actualizarElementoTexto('total-eventos', totalEventos);
         this.actualizarElementoTexto('proximos-eventos', proximosEventos);
         this.actualizarElementoTexto('eventos-hoy', eventosHoy);
         this.actualizarElementoTexto('total-inscritos', totalInscritos);
+
+        
     }
 
     actualizarElementoTexto(id, valor) {

@@ -143,8 +143,9 @@ class InscripcionActividadSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('fecha_inscripcion', 'vecino')
 
+
 class ActividadSerializer(serializers.ModelSerializer):
-    cupos_disponibles = serializers.IntegerField(read_only=True)
+    cupos_disponibles = serializers.SerializerMethodField()
     esta_inscrito = serializers.SerializerMethodField()
     mi_inscripcion = serializers.SerializerMethodField()
     
@@ -152,6 +153,14 @@ class ActividadSerializer(serializers.ModelSerializer):
         model = Actividad
         fields = '__all__'
     
+    def get_cupos_disponibles(self, obj):
+        cupos = obj.cupos_disponibles 
+        
+        if cupos == 'ILIMITADO':
+            return 'Ilimitados' 
+        
+        return cupos
+
     def get_esta_inscrito(self, obj):
         user = self.context['request'].user
         return obj.inscripciones.filter(vecino=user).exists()
@@ -176,7 +185,7 @@ class SolicitudCertificadoSerializer(serializers.ModelSerializer):
 class EspacioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Espacio
-        fields = ['id', 'nombre', 'tipo', 'descripcion', 'disponible']  # ← Quitar capacidad
+        fields = ['id', 'nombre', 'tipo', 'descripcion', 'disponible'] 
 
 class SolicitudEspacioSerializer(serializers.ModelSerializer):
     espacio_nombre = serializers.CharField(source='espacio.nombre', read_only=True)
@@ -194,7 +203,6 @@ from rest_framework import serializers
 from .models import Noticia, NoticiaImagen
 
 class NoticiaImagenSerializer(serializers.ModelSerializer):
-    # Ajustar para que reciba el ID de la noticia
     noticia = serializers.PrimaryKeyRelatedField(
         queryset=Noticia.objects.all(),
         required=True
@@ -202,7 +210,7 @@ class NoticiaImagenSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = NoticiaImagen
-        fields = ['id', 'imagen', 'noticia'] # El campo 'descripcion' se ha eliminado.
+        fields = ['id', 'imagen', 'noticia'] 
 
 class NoticiaDetalleSerializer(serializers.ModelSerializer):
     imagenes = NoticiaImagenSerializer(many=True, read_only=True)
@@ -237,7 +245,7 @@ class NoticiaSerializer(serializers.ModelSerializer):
             'junta_vecinos', 'fecha_creacion', 'fecha_actualizacion',
             'es_publica', 'imagen_principal', 'imagen_principal_url', 'imagenes'
         ]
-        read_only_fields = ['autor', 'fecha_creacion', 'fecha_actualizacion']
+        read_only_fields = ['autor', 'junta_vecinos', 'fecha_creacion', 'fecha_actualizacion']
     
     def get_imagen_principal_url(self, obj):
         if obj.imagen_principal:

@@ -61,7 +61,6 @@ class CustomUser(AbstractUser):
     )
     rol = models.CharField(max_length=20, choices=ROLES, default='registrado')
     
-    # Permisos específicos
     puede_gestionar_vecinos = models.BooleanField(default=False)
     puede_gestionar_certificados = models.BooleanField(default=False)
     puede_gestionar_proyectos = models.BooleanField(default=False)
@@ -193,7 +192,7 @@ class Actividad(models.Model):
     @property
     def cupos_disponibles(self):
         if self.cupo_maximo == 0:
-            return float('inf') 
+            return 'ILIMITADO' 
         
         inscritos_total = 0
         for inscripcion in self.inscripciones.all():
@@ -201,21 +200,24 @@ class Actividad(models.Model):
         
         return max(0, self.cupo_maximo - inscritos_total)
 
-    # Y en el método puede_inscribirse:
     def puede_inscribirse(self, user, cantidad_acompanantes=0):
+        total_personas = 1 + cantidad_acompanantes
+        
         if not self.permite_acompanantes and cantidad_acompanantes > 0:
             return False, "Esta actividad no permite acompañantes"
         
-        if cantidad_acompanantes + 1 > self.cupo_por_vecino:
+        if total_personas > self.cupo_por_vecino:
             return False, f"Máximo {self.cupo_por_vecino} personas por inscripción"
         
-        if self.cupos_disponibles < (1 + cantidad_acompanantes):
-            return False, "No hay cupos disponibles"
+        if self.cupo_maximo > 0:
+            cupos_disponibles = self.cupos_disponibles
+            if cupos_disponibles != 'ILIMITADO' and total_personas > cupos_disponibles:
+                return False, "No hay cupos disponibles"
         
         if self.inscripciones.filter(vecino=user).exists():
             return False, "Ya estás inscrito en esta actividad"
         
-        return True, ""
+        return True, "Puede inscribirse"
 
 class InscripcionActividad(models.Model):
     actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE, related_name='inscripciones')

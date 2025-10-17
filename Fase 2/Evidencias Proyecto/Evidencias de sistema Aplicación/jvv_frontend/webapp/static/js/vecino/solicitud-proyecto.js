@@ -82,6 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = {
                 titulo: form.titulo.value,
                 descripcion: form.descripcion.value,
+                fecha: form.fecha.value,
+                lugar: form.lugar.value
             };
 
             try {
@@ -89,7 +91,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]') ? form.querySelector('[name=csrfmiddlewaretoken]').value : ''
                     },
                     body: JSON.stringify(formData)
                 });
@@ -99,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.ok) {
                     messageDiv.innerHTML = `<div class="alert alert-success">¡Proyecto postulado correctamente!</div>`;
                     form.reset();
-                    cargarProyectosUsuario();
+                    setTimeout(() => window.location.reload(), 1200);
                 } else {
                     let errorMsg = data.error ? JSON.stringify(data.error) : 'Error al postular el proyecto.';
                     messageDiv.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;

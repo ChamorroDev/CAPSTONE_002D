@@ -86,7 +86,7 @@ def noticia_detail_update_delete(request, pk):
 @api_view(['POST'])
 @permission_classes([EsDirectivo])
 def subir_imagen_noticia(request):
- 
+
     noticia_id = request.data.get('noticia')
     imagenes = request.FILES.getlist('imagen')
 

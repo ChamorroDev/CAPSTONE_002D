@@ -62,6 +62,8 @@ def gestion_noticias(request):
     return render(request, 'directivo/noticias/gestion_noticias.html')
 def editar_noticias(request, pk):
     return render(request, 'directivo/noticias/editar.html')
+def crear_noticia(request):
+    return render(request, 'directivo/noticias/crear.html')
 def gestion_espacios(request):
     return render(request, 'directivo/espacios/dashboard_espacios.html')
 def gestion_eventos(request):

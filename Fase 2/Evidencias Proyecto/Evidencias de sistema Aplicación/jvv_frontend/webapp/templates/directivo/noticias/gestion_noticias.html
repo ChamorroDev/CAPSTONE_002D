@@ -4,67 +4,69 @@
 {% block title %}Gestión de Noticias{% endblock %}
 
 {% block content %}
-
 <link rel="stylesheet" href="{% static 'css/directivo_dashboard.css' %}">
-<div class="container-fluid px-0">
-<div class="row g-0">
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content">
-<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
-<h1 class="h2 mb-0">
-<i class="bi bi-newspaper text-info me-2"></i>Gestión de Noticias
-</h1>
-</div>
 
-    <div class="card dashboard-card mb-4">
-        <div class="card-header bg-white">
-            <h5 class="card-title mb-0">
-                <i class="bi bi-card-list me-2"></i>Noticias Publicadas
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="flex-grow-1 me-3">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por título...">
+<div class="container-fluid px-0">
+    <div class="row g-0">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content">
+            <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h2 mb-0">
+                    <i class="bi bi-newspaper text-info me-2"></i>Gestión de Noticias
+                </h1>
+                <a href="{% url 'crear_noticia' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Crear Noticia
+                </a>
+            </div>
+
+            <div class="card dashboard-card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-card-list me-2"></i>Noticias Publicadas
+                    </h5>
+                    <span id="noticiasCounter" class="badge bg-primary">Cargando...</span>
                 </div>
-                <div class="col-auto">
-                    <select id="filterStatus" class="form-select">
-                        <option value="all">Todos los estados</option>
-                        <option value="publicado">Publicadas</option>
-                        <option value="borrador">Borradores</option>
-                    </select>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="flex-grow-1 me-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por título...">
+                        </div>
+                        <div class="col-auto">
+                            <select id="filterStatus" class="form-select">
+                                <option value="all">Todos los estados</option>
+                                <option value="publicado">Publicadas</option>
+                                <option value="borrador">Borradores</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="noticiasList">
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                        <p class="text-muted mt-2">Cargando noticias...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Título</th>
-                            <th>Estado</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="noticiasList">
-                        <tr>
-                            <td colspan="4" class="text-center py-4">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span class="visually-hidden">Cargando...</span>
-                                </div>
-                                <p class="text-muted mt-2">Cargando noticias...</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        </main>
     </div>
-</main>
-</div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-
 <script src="{% static 'js/directivo/noticias/listar.js' %}"></script>
-
 {% endblock %}

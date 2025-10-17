@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Crear Noticia{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/directivo_noticia_editar.css' %}">
+
+<div class="container-fluid px-0">
+    <div class="row g-0">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content">
+            <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h2 mb-0">
+                    <i class="bi bi-plus-circle text-info me-2"></i>Crear Nueva Noticia
+                </h1>
+                <a href="{% url 'gestion_noticias' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Volver a Noticias
+                </a>
+            </div>
+
+            <div id="alertsContainer"></div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card dashboard-card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-newspaper me-2"></i>Detalles de la Noticia
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="noticiaForm">
+                                <div class="mb-3">
+                                    <label for="titulo" class="form-label">Título *</label>
+                                    <input type="text" class="form-control" id="titulo" name="titulo" required 
+                                        placeholder="Ingrese el título de la noticia">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contenido" class="form-label">Contenido *</label>
+                                    <textarea class="form-control" id="contenido" name="contenido" rows="12" required 
+                                            placeholder="Escriba el contenido de la noticia"></textarea>
+                                </div>
+                                <div class="mb-3 form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" id="esPublica" name="es_publica" checked>
+                                    <label class="form-check-label" for="esPublica">Publicar noticia</label>
+                                    <small class="form-text text-muted d-block">Cuando está activado, la noticia es visible para los vecinos</small>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'gestion_noticias' %}" class="btn btn-outline-secondary">
+                                        Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span>Crear Noticia</span>
+                                        <div class="loading-spinner" id="formSpinner" style="display: none;"></div>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card dashboard-card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-images me-2"></i>Imágenes de la Noticia
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="upload-section mb-4">
+                                <i class="bi bi-cloud-upload fs-1 text-primary mb-2"></i>
+                                <h6>Agregar imágenes a la noticia</h6>
+                                <p class="text-muted small mb-3">Puedes agregar imágenes después de crear la noticia</p>
+                                <div class="alert alert-info py-2">
+                                    <small>
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Las imágenes se podrán gestionar una vez creada la noticia
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Información</label>
+                                <ul class="small text-muted">
+                                    <li>Formatos soportados: JPG, PNG, WEBP</li>
+                                    <li>Tamaño máximo: 5MB por imagen</li>
+                                    <li>Puedes agregar múltiples imágenes</li>
+                                    <li>Puedes establecer una imagen principal</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/directivo/noticias/crear.js' %}"></script>
+{% endblock %}
