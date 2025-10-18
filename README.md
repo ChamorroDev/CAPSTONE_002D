@@ -1,7 +1,7 @@
 # 📌 Junta360 Digital  
 
 ## 📖 Descripción del Proyecto  
-**Junta360 Digital** es una plataforma web diseñada para la gestión comunitaria, permitiendo a los usuarios navegar, registrarse, interactuar con vecinos  y entregar reportes de apoyo a directivos.  
+**Junta360 Digital** es una plataforma web diseñada para la gestión comunitaria, permitiendo a los usuarios navegar, registrarse, interactuar con vecinos  y entregar información de apoyo a directivos.  
 Este proyecto corresponde al **CAPSTONE_002D – Grupo 3**.  
 
 ---
