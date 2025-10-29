@@ -73,28 +73,25 @@ Se recomienda crear un entorno virtual separado para **backend** y **frontend** 
 
 **Requisitos:** Python 3.x instalado.
 
-```bash
 # Crear y activar entorno virtual para el backend
 cd backend
 python -m venv .venv
 source .venv/bin/activate   # En Linux/Mac
 # .venv\Scripts\activate    # En Windows
-pip install -r requirements.txt
+pip install -r requirements_back.txt
 
 # Crear y activar entorno virtual para el frontend
 cd ../frontend
 python -m venv .venv
 source .venv/bin/activate   # En Linux/Mac
 # .venv\Scripts\activate    # En Windows
-pip install -r requirements.txt
+pip install -r requirements_front.txt
 🔹 2. Configuración de n8n (Automatización)
 El proyecto depende de n8n para la orquestación de notificaciones (email, WhatsApp) y generación automatizada de documentos (certificados).
 
 Requisitos: Docker y Docker Compose instalados en tu sistema.
 
 🐳 Iniciar n8n con Docker
-bash
-Copiar código
 # Asumiendo que el archivo docker-compose.yml está en la raíz o en /n8n
 docker-compose up -d
 🔁 Importar Flujos de n8n
@@ -104,28 +101,21 @@ Dirígete a Workflows → New → Import from JSON
 
 Importa el archivo:
 
-bash
-Copiar código
 n8n/flujos_junta360.json
 Este contiene la lógica de automatización de certificados y notificaciones.
 
 🔹 3. Carga Inicial de Datos
 El proyecto requiere una carga inicial de datos para poblar la base de datos con usuarios de prueba y configuraciones básicas.
 
-bash
-Copiar código
 # Desde el directorio raíz o backend
 python manage.py load_initial_data --force
 🔹 4. Ejecución del Proyecto
 🖥️ Iniciar el servidor Django
-bash
-Copiar código
 python manage.py runserver
 🔍 Verificar que n8n esté activo
 Ejecuta el siguiente comando para verificar el contenedor:
 
-bash
-Copiar código
+
 docker ps
 El sistema se comunicará con n8n en el puerto configurado (por defecto http://localhost:5678).
 
