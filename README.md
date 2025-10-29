@@ -85,7 +85,7 @@ Sigue los pasos a continuación para ejecutar **Junta360 Digital** en tu entorno
 ### 🔹 1. Clonar el Repositorio
 
 ```bash
-git clone https://github.com/tuusuario/junta360-digital.git
+git clone https://github.com/ChamorroDev/junta360-digital.git
 cd junta360-digital
 ```
 
@@ -104,14 +104,14 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate   # En Linux/Mac
 # .venv\Scripts\activate  # En Windows
-pip install -r requirements.txt
+pip install -r requirements_back.txt
 
 # Crear y activar entorno virtual para el frontend
 cd ../frontend
 python -m venv .venv
 source .venv/bin/activate   # En Linux/Mac
 # .venv\Scripts\activate  # En Windows
-pip install -r requirements.txt
+pip install -r requirements_front.txt
 ```
 
 ---
