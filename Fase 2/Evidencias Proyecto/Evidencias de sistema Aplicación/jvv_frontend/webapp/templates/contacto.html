@@ -10,19 +10,20 @@
             <h2 class="mb-2">Contáctanos</h2>
             <p class="text-muted mb-4">Si tienes alguna pregunta o necesitas ayuda, no dudes en ponerte en contacto con nosotros. Estamos aquí para servir a nuestra comunidad.</p>
 
-            <form>
+
+            <form id="formulario_contacto">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="id_nombre" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="id_nombre" placeholder="Ingresa tu nombre">
+                    <input type="text" class="form-control" id="id_nombre" placeholder="Ingresa tu nombre" required>
                 </div>
                 <div class="mb-3">
                     <label for="id_correo_electronico" class="form-label">Correo electrónico</label>
-                    <input type="email" class="form-control" id="id_correo_electronico" placeholder="Ingresa tu correo electrónico">
+                    <input type="email" class="form-control" id="id_correo_electronico" placeholder="Ingresa tu correo electrónico" required>
                 </div>
                 <div class="mb-4">
                     <label for="id_mensaje" class="form-label">Mensaje</label>
-                    <textarea class="form-control" id="id_mensaje" rows="5" placeholder="Ingresa tu mensaje"></textarea>
+                    <textarea class="form-control" id="id_mensaje" rows="5" placeholder="Ingresa tu mensaje" required></textarea>
                 </div>
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary">Enviar mensaje</button>
@@ -36,7 +37,7 @@
                 <div class="col-md-6 mb-3">
                     <strong>Dirección</strong>
                     <br>
-                    Calle Principal 123, Santiago, Chile
+                    Av. Vicuña Mackenna 4917, 8970117 San Joaquín, Región Metropolitana
                 </div>
                 <div class="col-md-6 mb-3">
                     <strong>Teléfono</strong>
@@ -48,14 +49,466 @@
                 <div class="col-md-12 mb-4">
                     <strong>Correo electrónico</strong>
                     <br>
-                    contacto@micomunidad.cl
+                    junta360digital@gmail.cl
                 </div>
             </div>
 
-            <div class="mapa-container">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13303.407983637653!2d-70.67137351658428!3d-33.44755866178762!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662c5896b79f987%3A0xea80d468131d966e!2sSantiago%2C%20Regi%C3%B3n%20Metropolitana%2C%20Chile!5e0!3m2!1ses-419!2scl!4v1709405481710!5m2!1ses-419!2scl" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <!-- Mapa interactivo -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Nuestra Comunidad</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="mapa_comunidad" style="height: 450px; width: 100%;"></div>
+                </div>
             </div>
         </div>
     </div>
 </main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Incluir Leaflet CSS y JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// Coordenadas del centro de tu barrio (debes reemplazar con las reales)
+const CENTRO_BARRIO = [-33.49994589515969, -70.6165851613579];
+const RADIO_BARRIO = 1000; // Radio en metros
+
+let mapa;
+let circuloBarrio;
+let marcadorUsuario;
+
+function inicializarMapa() {
+    // Inicializar mapa
+    mapa = L.map('mapa_comunidad').setView(CENTRO_BARRIO, 16);
+    
+    // Agregar capa de tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(mapa);
+    
+    // Dibujar círculo que representa el barrio
+    circuloBarrio = L.circle(CENTRO_BARRIO, {
+        color: 'blue',
+        fillColor: '#3388ff',
+        fillOpacity: 0.2,
+        radius: RADIO_BARRIO
+    }).addTo(mapa);
+    
+    // Agregar marcador del centro del barrio
+    L.marker(CENTRO_BARRIO)
+        .addTo(mapa)
+        .bindPopup('Centro de nuestra comunidad')
+        .openPopup();
+}
+
+function buscarDireccion() {
+    const direccion = document.getElementById('id_direccion_verificacion').value;
+    const resultadoDiv = document.getElementById('resultado_verificacion');
+    
+    if (direccion.length < 5) {
+        resultadoDiv.innerHTML = '';
+        return;
+    }
+    
+    // Usar Nominatim para geocodificación (gratuito)
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion + ', Santiago, Chile')}&limit=1`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lon = parseFloat(data[0].lon);
+                
+                // Verificar si está dentro del barrio
+                const distancia = calcularDistancia(CENTRO_BARRIO[0], CENTRO_BARRIO[1], lat, lon);
+                const estaEnBarrio = distancia <= RADIO_BARRIO;
+                
+                // Actualizar resultado
+                if (estaEnBarrio) {
+                    resultadoDiv.innerHTML = `<div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> ¡Excelente! Tu dirección está dentro de nuestra comunidad.
+                    </div>`;
+                } else {
+                    resultadoDiv.innerHTML = `<div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Tu dirección parece estar fuera de los límites de nuestra comunidad.
+                    </div>`;
+                }
+                
+                // Actualizar mapa
+                actualizarMapaConDireccion(lat, lon, estaEnBarrio, data[0].display_name);
+                
+            } else {
+                resultadoDiv.innerHTML = `<div class="alert alert-danger">
+                    <i class="fas fa-times-circle"></i> No se pudo encontrar la dirección. Por favor, verifica que esté correcta.
+                </div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultadoDiv.innerHTML = `<div class="alert alert-danger">
+                Error al buscar la dirección. Intenta nuevamente.
+            </div>`;
+        });
+}
+
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Radio de la Tierra en metros
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+function actualizarMapaConDireccion(lat, lon, estaEnBarrio, direccionCompleta) {
+    // Limpiar marcador anterior
+    if (marcadorUsuario) {
+        mapa.removeLayer(marcadorUsuario);
+    }
+    
+    // Agregar nuevo marcador
+    const iconColor = estaEnBarrio ? 'green' : 'red';
+    const iconoUsuario = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: ${iconColor}; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+    
+    marcadorUsuario = L.marker([lat, lon], {icon: iconoUsuario})
+        .addTo(mapa)
+        .bindPopup(`<strong>Tu ubicación:</strong><br>${direccionCompleta}`)
+        .openPopup();
+    
+    // Ajustar vista del mapa para mostrar ambos puntos
+    const grupo = new L.featureGroup([circuloBarrio, marcadorUsuario]);
+    mapa.fitBounds(grupo.getBounds().pad(0.1));
+}
+
+// Inicializar mapa cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarMapa();
+    
+    // Manejar envío del formulario
+    document.getElementById('formulario_contacto').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Aquí iría tu lógica para enviar el formulario
+        alert('Mensaje enviado (esta es una demo)');
+    });
+});
+
+
+
+// JavaScript para el formulario de contacto
+document.addEventListener('DOMContentLoaded', function() {
+    const formularioContacto = document.getElementById('formulario_contacto');
+    
+    formularioContacto.addEventListener('submit', function(e) {
+        e.preventDefault();
+        enviarFormularioContacto();
+    });
+});
+
+function enviarFormularioContacto() {
+    // Obtener elementos del DOM
+    const formulario = document.getElementById('formulario_contacto');
+    const botonEnviar = formulario.querySelector('button[type="submit"]');
+    const estadoOriginal = botonEnviar.innerHTML;
+    
+    // Obtener datos del formulario
+    const nombre = document.getElementById('id_nombre').value.trim();
+    const correo = document.getElementById('id_correo_electronico').value.trim();
+    const mensaje = document.getElementById('id_mensaje').value.trim();
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Validaciones del lado del cliente
+    if (!validarFormularioContacto(nombre, correo, mensaje)) {
+        return;
+    }
+    
+    // Cambiar estado del botón
+    botonEnviar.disabled = true;
+    botonEnviar.innerHTML = `
+        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        Enviando...
+    `;
+    
+    // Crear objeto de datos
+    const datosFormulario = {
+        nombre: nombre,
+        correo_electronico: correo,
+        mensaje: mensaje
+    };
+   
+    // Enviar petición AJAX
+    fetch(`${URL_API}api/contacto/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datosFormulario)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            mostrarMensajeExito(data.message || 'Mensaje enviado correctamente');
+            formulario.reset();
+        } else {
+            throw new Error(data.message || 'Error al enviar el mensaje');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarMensajeError(error.message || 'Error al enviar el mensaje. Por favor, intenta nuevamente.');
+    })
+    .finally(() => {
+        // Restaurar estado del botón
+        botonEnviar.disabled = false;
+        botonEnviar.innerHTML = estadoOriginal;
+    });
+}
+
+function validarFormularioContacto(nombre, correo, mensaje) {
+    const mensajesError = [];
+    
+    // Validar nombre
+    if (!nombre) {
+        mensajesError.push('El nombre es obligatorio');
+    } else if (nombre.length < 2) {
+        mensajesError.push('El nombre debe tener al menos 2 caracteres');
+    } else if (nombre.length > 100) {
+        mensajesError.push('El nombre no puede exceder los 100 caracteres');
+    }
+    
+    // Validar correo
+    if (!correo) {
+        mensajesError.push('El correo electrónico es obligatorio');
+    } else if (!validarEmail(correo)) {
+        mensajesError.push('El formato del correo electrónico no es válido');
+    }
+    
+    // Validar mensaje
+    if (!mensaje) {
+        mensajesError.push('El mensaje es obligatorio');
+    } else if (mensaje.length < 10) {
+        mensajesError.push('El mensaje debe tener al menos 10 caracteres');
+    } else if (mensaje.length > 1000) {
+        mensajesError.push('El mensaje no puede exceder los 1000 caracteres');
+    }
+    
+    // Mostrar errores si existen
+    if (mensajesError.length > 0) {
+        mostrarErroresValidacion(mensajesError);
+        return false;
+    }
+    
+    return true;
+}
+
+function validarEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function mostrarErroresValidacion(errores) {
+    // Remover mensajes de error anteriores
+    removerMensajesError();
+    
+    const contenedorErrores = document.createElement('div');
+    contenedorErrores.className = 'alert alert-danger';
+    contenedorErrores.innerHTML = `
+        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Por favor corrige los siguientes errores:</h6>
+        <ul class="mb-0">
+            ${errores.map(error => `<li>${error}</li>`).join('')}
+        </ul>
+    `;
+    
+    // Insertar antes del formulario
+    const formulario = document.getElementById('formulario_contacto');
+    formulario.parentNode.insertBefore(contenedorErrores, formulario);
+    
+    // Scroll hacia los errores
+    contenedorErrores.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function mostrarMensajeExito(mensaje) {
+    // Remover mensajes anteriores
+    removerMensajesError();
+    
+    const contenedorExito = document.createElement('div');
+    contenedorExito.className = 'alert alert-success';
+    contenedorExito.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-check-circle fa-2x me-3"></i>
+            <div>
+                <h6 class="alert-heading mb-1">¡Mensaje enviado!</h6>
+                <p class="mb-0">${mensaje}</p>
+            </div>
+        </div>
+    `;
+    
+    // Insertar antes del formulario
+    const formulario = document.getElementById('formulario_contacto');
+    formulario.parentNode.insertBefore(contenedorExito, formulario);
+    
+    // Scroll hacia el mensaje de éxito
+    contenedorExito.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        if (contenedorExito.parentNode) {
+            contenedorExito.remove();
+        }
+    }, 5000);
+}
+
+function mostrarMensajeError(mensaje) {
+    // Remover mensajes anteriores
+    removerMensajesError();
+    
+    const contenedorError = document.createElement('div');
+    contenedorError.className = 'alert alert-danger';
+    contenedorError.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-circle fa-2x me-3"></i>
+            <div>
+                <h6 class="alert-heading mb-1">Error al enviar</h6>
+                <p class="mb-0">${mensaje}</p>
+            </div>
+        </div>
+    `;
+    
+    // Insertar antes del formulario
+    const formulario = document.getElementById('formulario_contacto');
+    formulario.parentNode.insertBefore(contenedorError, formulario);
+    
+    // Scroll hacia el mensaje de error
+    contenedorError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removerMensajesError() {
+    const mensajesAnteriores = document.querySelectorAll('.alert');
+    mensajesAnteriores.forEach(mensaje => {
+        if (mensaje.parentNode) {
+            mensaje.remove();
+        }
+    });
+}
+
+// Validación en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const campos = ['id_nombre', 'id_correo_electronico', 'id_mensaje'];
+    
+    campos.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            campo.addEventListener('blur', function() {
+                validarCampoIndividual(this);
+            });
+            
+            campo.addEventListener('input', function() {
+                limpiarEstadoCampo(this);
+            });
+        }
+    });
+});
+
+function validarCampoIndividual(campo) {
+    const valor = campo.value.trim();
+    let esValido = true;
+    let mensajeError = '';
+    
+    switch (campo.id) {
+        case 'id_nombre':
+            if (!valor) {
+                esValido = false;
+                mensajeError = 'El nombre es obligatorio';
+            } else if (valor.length < 2) {
+                esValido = false;
+                mensajeError = 'El nombre debe tener al menos 2 caracteres';
+            }
+            break;
+            
+        case 'id_correo_electronico':
+            if (!valor) {
+                esValido = false;
+                mensajeError = 'El correo electrónico es obligatorio';
+            } else if (!validarEmail(valor)) {
+                esValido = false;
+                mensajeError = 'El formato del correo no es válido';
+            }
+            break;
+            
+        case 'id_mensaje':
+            if (!valor) {
+                esValido = false;
+                mensajeError = 'El mensaje es obligatorio';
+            } else if (valor.length < 10) {
+                esValido = false;
+                mensajeError = 'El mensaje debe tener al menos 10 caracteres';
+            }
+            break;
+    }
+    
+    if (!esValido) {
+        mostrarErrorCampo(campo, mensajeError);
+    } else {
+        mostrarExitoCampo(campo);
+    }
+    
+    return esValido;
+}
+
+function mostrarErrorCampo(campo, mensaje) {
+    // Limpiar estado anterior
+    limpiarEstadoCampo(campo);
+    
+    // Aplicar estilos de error
+    campo.classList.add('is-invalid');
+    
+    // Crear mensaje de error
+    const feedbackError = document.createElement('div');
+    feedbackError.className = 'invalid-feedback';
+    feedbackError.textContent = mensaje;
+    
+    campo.parentNode.appendChild(feedbackError);
+}
+
+function mostrarExitoCampo(campo) {
+    // Limpiar estado anterior
+    limpiarEstadoCampo(campo);
+    
+    // Aplicar estilos de éxito
+    campo.classList.add('is-valid');
+}
+
+function limpiarEstadoCampo(campo) {
+    campo.classList.remove('is-invalid', 'is-valid');
+    
+    // Remover mensajes de feedback
+    const feedbacks = campo.parentNode.querySelectorAll('.invalid-feedback, .valid-feedback');
+    feedbacks.forEach(feedback => feedback.remove());
+}
+
+</script>
+
+<style>
+.custom-div-icon {
+    background: transparent;
+    border: none;
+}
+.leaflet-container {
+    border-radius: 0 0 0.375rem 0.375rem;
+}
+</style>
 {% endblock %}

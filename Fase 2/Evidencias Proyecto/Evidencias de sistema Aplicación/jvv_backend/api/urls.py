@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import authentication, usuarios, noticias, certificados, espacios, actividades, proyectos, dashboard, perfiles
+from .views import authentication, usuarios, noticias, certificados, espacios, actividades, proyectos, dashboard, perfiles,utils
 
 # Para vistas basadas en clase
 router = DefaultRouter()
@@ -113,6 +113,10 @@ urlpatterns = [
     path('api/vecino/actualizar-perfil/', perfiles.actualizar_perfil, name='actualizar_perfil'),
     path('api/vecino/cambiar-password/', perfiles.cambiar_password, name='cambiar_password'),
     
+    # Contacto
+
+    path('api/contacto/', utils.contacto, name='contacto'),
+
 
     
 ]

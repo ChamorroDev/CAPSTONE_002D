@@ -125,3 +125,95 @@ def send_confirmation_email_via_n8n(email, user_name):
         print(f"Error calling n8n confirmation webhook: {str(e)}")
         return False
 
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def contacto(request):
+    """
+    API para manejar el envío del formulario de contacto a n8n
+    """
+    try:
+        data = json.loads(request.body)
+        
+        nombre = data.get('nombre', '').strip()
+        correo_electronico = data.get('correo_electronico', '').strip()
+        mensaje = data.get('mensaje', '').strip()
+        
+        if not nombre or not correo_electronico or not mensaje:
+            return JsonResponse({
+                'success': False,
+                'message': 'Todos los campos son obligatorios'
+            }, status=400)
+        
+        if len(nombre) < 2 or len(nombre) > 100:
+            return JsonResponse({
+                'success': False,
+                'message': 'El nombre debe tener entre 2 y 100 caracteres'
+            }, status=400)
+        
+        if len(mensaje) < 10 or len(mensaje) > 1000:
+            return JsonResponse({
+                'success': False,
+                'message': 'El mensaje debe tener entre 10 y 1000 caracteres'
+            }, status=400)
+        
+        payload_n8n = {
+            "nombre": nombre,
+            "email": correo_electronico,
+            "mensaje": mensaje,
+            "origen": "formulario_contacto_web",
+            "timestamp": timezone.now().isoformat()
+        }
+        
+        url_n8n = getattr(settings, 'N8N_WEBHOOK_URL', 'http://localhost:5678/webhook/a0257c4e-08f5-41b7-888f-7446e06257f7')
+        
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        
+    
+        
+        response = requests.post(
+            url_n8n,
+            json=payload_n8n,
+            headers=headers,
+            timeout=30 
+        )
+        
+        if response.status_code == 200:
+            return JsonResponse({
+                'success': True,
+                'message': 'Tu mensaje ha sido enviado correctamente. Te contactaremos pronto.'
+            })
+        else:
+            print(f"Error n8n - Status: {response.status_code}, Response: {response.text}")
+            
+            return JsonResponse({
+                'success': False,
+                'message': 'Error al procesar tu mensaje. Por favor, intenta nuevamente.'
+            }, status=500)
+        
+    except requests.exceptions.Timeout:
+        return JsonResponse({
+            'success': False,
+            'message': 'Tiempo de espera agotado. Por favor, intenta nuevamente.'
+        }, status=408)
+        
+    except requests.exceptions.ConnectionError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Error de conexión. Por favor, verifica tu internet e intenta nuevamente.'
+        }, status=503)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Error en el formato de los datos'
+        }, status=400)
+        
+    except Exception as e:
+        print(f"Error interno en api_contacto: {str(e)}")
+        
+        return JsonResponse({
+            'success': False,
+            'message': 'Error interno del servidor. Por favor, intenta más tarde.'
+        }, status=500)
