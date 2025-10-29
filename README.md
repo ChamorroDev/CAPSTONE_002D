@@ -39,23 +39,30 @@ Este proyecto corresponde al **CAPSTONE_002D – Grupo 3**.
 | **Control de Versiones** | GitHub | Gestión del código fuente |
 | **Diseño** | Figma, Lucidchart, StarUML | Mockups, diagramas y modelado de software |
 
----
-
-## 📂 Estructura del Repositorio
-
-├── /frontend # Código del cliente (templates y vistas de Django)
-├── /backend # API y lógica de negocio (modelos y servicios de Django)
-├── /n8n # Archivos de configuración y flujos JSON de n8n
-└── README.md # Documento principal del proyecto
-
-yaml
-Copiar código
 
 ---
 
 ## ⚙️ Instalación y Configuración
 
 Para poner en marcha **Junta360 Digital**, es necesario configurar los entornos de desarrollo de **Django** y la herramienta de automatización **n8n**.
+
+---
+
+
+## 🧩 Requisitos Previos
+
+Antes de instalar el proyecto, asegúrate de tener instaladas las siguientes herramientas en tu sistema:
+
+| Requisito | Versión recomendada | Descripción |
+|------------|--------------------|--------------|
+| **Python** | 3.10 o superior | Lenguaje principal del proyecto |
+| **pip** | Última versión | Gestor de paquetes de Python |
+| **Docker** | 20.10 o superior | Para ejecutar n8n en contenedor |
+| **Docker Compose** | 1.29 o superior | Para orquestar contenedores de n8n |
+| **Git** | Última versión | Control de versiones y clonación del repositorio |
+| **Virtualenv** *(opcional)* | Última versión | Para entornos virtuales de Python |
+
+> 💡 **Tip:** En sistemas Windows, se recomienda instalar **Python** desde [python.org/downloads](https://www.python.org/downloads/) y **Docker Desktop** desde [docker.com](https://www.docker.com/).
 
 ---
 
