@@ -118,5 +118,10 @@ urlpatterns = [
     path('api/contacto/', utils.contacto, name='contacto'),
 
 
+    path('api/whatsapp/webhook/', utils.webhook_whatsapp , name='webhook_whatsapp'),
+    path('api/whatsapp/procesar_solicitud_chat/', utils.procesar_solicitud , name='procesar_solicitud_chat'),
+    path('api/whatsapp/estado_conversacion/', utils.estado_conversacion , name='estado_conversacion'),
+
+
     
 ]

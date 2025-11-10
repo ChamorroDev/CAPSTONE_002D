@@ -26,16 +26,31 @@ SECRET_KEY = 'django-insecure-x2oemt6$%g335^r6j0-9n46mydc5@&2tcl_!un8m!nj$8*pfn4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','frontend']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'frontend',
+    'nonpleading-contessa-overdescriptively.ngrok-free.dev'
+]
+#########################################
+
+# No mostrar errores detallados #BORRAR DESPUES DE PRUEBAS
+DEBUG_PROPAGATE_EXCEPTIONS = False
+
 
 
 # Configuración de CORS
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",
     "http://localhost:8080",
-    "http://frontend:8080",
-
+    "http://frontend:8080", 
+    "https://junta360digital.app.n8n.cloud",
+    "https://nonpleading-contessa-overdescriptively.ngrok-free.dev"
 ]
+
+
+# Token para webhooks
+WEBHOOK_TOKEN = 'wk__cV4psY10zMmQvsjljVQ33IOm5pdfQjXdi1k0kOHe7I'
 
 
 # Configuración de CSRF para que tu frontend sea un origen de confianza para peticiones POST
@@ -190,3 +205,7 @@ ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp']
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+

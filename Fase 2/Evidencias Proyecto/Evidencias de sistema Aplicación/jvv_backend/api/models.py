@@ -276,3 +276,14 @@ class SolicitudEspacio(models.Model):
     
     def __str__(self):
         return f"Reserva de {self.espacio.nombre} - {self.solicitante}"
+
+
+
+class ConversacionWhatsApp(models.Model):
+    telefono = models.CharField(max_length=20, unique=True)
+    estado = models.CharField(max_length=50, default='inactivo')  
+    ultima_interaccion = models.DateTimeField(auto_now=True)
+    datos_contexto = models.JSONField(default=dict)
+    
+    class Meta:
+        db_table = 'conversaciones_whatsapp'

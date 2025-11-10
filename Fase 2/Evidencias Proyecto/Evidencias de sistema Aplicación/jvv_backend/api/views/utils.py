@@ -217,3 +217,229 @@ def contacto(request):
             'success': False,
             'message': 'Error interno del servidor. Por favor, intenta más tarde.'
         }, status=500)
+
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+import secrets
+
+# Token seguro para webhook
+WEBHOOK_TOKEN = settings.WEBHOOK_TOKEN
+
+
+@csrf_exempt
+def webhook_whatsapp(request):
+    """
+    SOLO verifica si el número es vecino registrado
+    n8n se encarga del resto
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    # 1. VERIFICAR TOKEN
+    auth_header = request.headers.get('Authorization')
+    expected_token = f"Token {settings.WEBHOOK_TOKEN}"
+    
+    if auth_header != expected_token:
+        return JsonResponse({'error': 'No autorizado'}, status=401)
+    
+    # 2. PROCESAR MENSAJE
+    try:
+        import json
+        data = json.loads(request.body)
+        telefono = data.get('telefono')
+        mensaje = data.get('mensaje')
+        timestamp = data.get('timestamp')
+        
+        print(f"📱 Verificando - Tel: {telefono}, Msg: {mensaje}")
+        
+        # Validar campos requeridos
+        if not telefono or not mensaje:
+            return JsonResponse({'error': 'Faltan campos requeridos'}, status=400)
+        
+        # 3. SOLO VERIFICAR SI ES VECINO
+        try:
+            vecino = CustomUser.objects.get(telefono=telefono, is_active=True, rol='vecino')
+            
+            print(f"✅ Vecino verificado: {vecino.get_full_name()}")
+            
+            # Guardar mensaje (opcional)
+            mensaje_obj = MensajeWhatsApp.objects.create(
+                vecino=vecino,
+                mensaje=mensaje,
+                telefono=telefono,
+                timestamp=timestamp,
+                procesado=True,
+                tipo_consulta='verificado'
+            )
+            
+            return JsonResponse({
+                'es_vecino': True,
+                'vecino_id': vecino.id,
+                'nombre': vecino.get_full_name(),
+                'telefono': telefono,
+                'mensaje': mensaje,
+                'mensaje_id': mensaje_obj.id
+            })
+            
+        except CustomUser.DoesNotExist:
+            print("❌ No es vecino registrado")
+            
+            mensaje_obj = MensajeWhatsApp.objects.create(
+                mensaje=mensaje,
+                telefono=telefono, 
+                timestamp=timestamp,
+                procesado=False,
+                es_vecino=False,
+                tipo_consulta='no_verificado'
+            )
+            
+            return JsonResponse({
+                'es_vecino': False,
+                'telefono': telefono,
+                'mensaje': mensaje,
+                'motivo': 'no_registrado',
+                'mensaje_id': mensaje_obj.id
+            })
+            
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+def procesar_solicitud(request):
+    """q
+    Procesa solicitudes de WhatsApp
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    # Verificar token
+    auth_header = request.headers.get('Authorization')
+    expected_token = f"Token {settings.WEBHOOK_TOKEN}"
+    if auth_header != expected_token:
+        return JsonResponse({'error': 'No autorizado'}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        telefono = data.get('telefono')
+        tipo_solicitud = data.get('tipo_solicitud')  # 'certificado', 'espacio', 'proyecto'
+        
+        # Verificar vecino
+        try:
+            vecino = CustomUser.objects.get(telefono=telefono, is_active=True, rol='vecino')
+            
+            if tipo_solicitud == 'certificado':
+                return procesar_certificado(vecino, data)
+            elif tipo_solicitud == 'espacio':
+                return procesar_espacio(vecino, data)
+            elif tipo_solicitud == 'proyecto':
+                return procesar_proyecto(vecino, data)
+            else:
+                return JsonResponse({'error': 'Tipo de solicitud inválido'}, status=400)
+                
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'Vecino no registrado'}, status=404)
+            
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def procesar_certificado(vecino, data):
+    """Procesar solicitud de certificado"""
+    # Verificar si ya tiene certificado pendiente
+    certificados_pendientes = SolicitudCertificado.objects.filter(
+        vecino=vecino, 
+        estado='pendiente'
+    )
+    
+    if certificados_pendientes.exists():
+        return JsonResponse({
+            'estado': 'rechazado',
+            'mensaje': '📄 Ya tienes un certificado de residencia pendiente. Espera que el directivo lo apruebe.',
+            'solicitud_id': certificados_pendientes.first().id
+        })
+    
+    # Crear nueva solicitud
+    solicitud = SolicitudCertificado.objects.create(
+        vecino=vecino,
+        tipo='Certificado de Residencia',
+        motivo='Solicitud vía WhatsApp',
+        estado='pendiente'
+    )
+    
+    return JsonResponse({
+        'estado': 'creado',
+        'mensaje': '✅ Tu solicitud de certificado de residencia ha sido creada. La solictud está en espera del Directivo.',
+        'solicitud_id': solicitud.id
+    })
+
+def procesar_espacio(vecino, data):
+    """Procesar solicitud de espacio"""
+    pass
+
+def procesar_proyecto(vecino, data):
+    """Procesar propuesta de proyecto con AI estructurado"""
+    
+    try:
+        ai_data = json.loads(data.get('resumen_ai', '{}'))
+        titulo = ai_data.get('titulo', f"Propuesta de {vecino.nombre}")
+        descripcion = ai_data.get('descripcion', 'Propuesta recibida vía WhatsApp')
+        
+        proyecto = ProyectoVecinal.objects.create(
+            titulo=titulo,
+            descripcion=descripcion,
+            proponente=vecino,
+            junta_vecinos=vecino.junta_vecinos,
+            estado='pendiente'
+        )
+        
+        return JsonResponse({
+            'estado': 'creado',
+            'mensaje': f'✅ Propuesta "{titulo}" registrada exitosamente.',
+            'proyecto_id': proyecto.id
+        })
+        
+    except json.JSONDecodeError:
+        proyecto = ProyectoVecinal.objects.create(
+            titulo=f"Propuesta de {vecino.nombre}",
+            descripcion=data.get('resumen_ai', 'Propuesta recibida vía WhatsApp'),
+            proponente=vecino,
+            junta_vecinos=vecino.junta_vecinos,
+            estado='pendiente'
+        )
+        
+        return JsonResponse({
+            'estado': 'creado',
+            'mensaje': '✅ Tu propuesta ha sido registrada.',
+            'proyecto_id': proyecto.id
+        })
+
+
+@csrf_exempt
+def estado_conversacion(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        telefono = data.get('telefono')
+        accion = data.get('accion')  # 'obtener', 'actualizar', 'limpiar'
+        
+        if accion == 'obtener':
+            try:
+                conversacion = ConversacionWhatsApp.objects.get(telefono=telefono)
+                return JsonResponse({
+                    'tiene_conversacion': True,
+                    'estado': conversacion.estado,
+                    'datos': conversacion.datos_contexto
+                })
+            except ConversacionWhatsApp.DoesNotExist:
+                return JsonResponse({'tiene_conversacion': False})
+                
+        elif accion == 'actualizar':
+            estado = data.get('estado', 'proyecto')
+            ConversacionWhatsApp.objects.update_or_create(
+                telefono=telefono,
+                defaults={'estado': estado, 'datos_contexto': data.get('datos', {})}
+            )
+            return JsonResponse({'estado': 'actualizado'})
+            
+        elif accion == 'limpiar':
+            ConversacionWhatsApp.objects.filter(telefono=telefono).delete()
+            return JsonResponse({'estado': 'limpiado'})

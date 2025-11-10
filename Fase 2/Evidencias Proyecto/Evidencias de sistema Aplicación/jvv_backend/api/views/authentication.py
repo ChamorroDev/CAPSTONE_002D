@@ -3,37 +3,83 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.contrib.auth.hashers import check_password
 from .utils import *
 from ..serializers import LoginSerializer, RegisterSerializer, UserSerializer, VecinoRegistrationSerializer
+import logging
+logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_api(request):
     """
-    Gestiona el inicio de sesión y verifica si el usuario ha sido aprobado.
+    Gestiona el inicio de sesión con manejo robusto de errores.
     """
-    serializer = LoginSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        user = serializer.validated_data['user']
+    try:
+        email = request.data.get('email', '').lower().strip()
+        password = request.data.get('password', '')
         
+        logger.info(f"Intento de login para email: {email}")
+        
+        # Validaciones básicas
+        if not email or not password:
+            return Response(
+                {"error": "Por favor, complete todos los campos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Buscar usuario por email
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "Credenciales inválidas"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Verificar si el usuario está aprobado
         if user.rol == 'registrado':
             return Response(
                 {"error": "Tu cuenta está pendiente de aprobación por la administración."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-            
-        refresh = RefreshToken.for_user(user)
-        user_serializer = UserLoginSerializer(user)
         
-        return Response({
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-            'user': user_serializer.data
-        })
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Verificar contraseña
+        if check_password(password, user.password):
+            # Login exitoso
+            refresh = RefreshToken.for_user(user)
+            
+            user_data = {
+                'id': user.id,
+                'email': user.email,
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'rol': user.rol
+            }
+            
+            logger.info(f"Login exitoso para usuario: {user.email}")
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': user_data
+            })
+        else:
+            # Contraseña incorrecta
+            logger.warning(f"Intento de login fallido para: {user.email}")
+            return Response(
+                {"error": "Contraseña incorrecta"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
+    except Exception as e:
+        # Error inesperado
+        logger.error(f"Error interno en login: {str(e)}", exc_info=True)
+        return Response(
+            {"error": "Error interno del servidor. Por favor, contacte al administrador."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

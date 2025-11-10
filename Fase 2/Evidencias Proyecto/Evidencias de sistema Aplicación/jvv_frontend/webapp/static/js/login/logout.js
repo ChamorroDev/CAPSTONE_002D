@@ -1,8 +1,10 @@
 
 function globalLogout() {
+    console.log('Iniciando proceso de cierre de sesión');
     if (confirm('¿Está seguro que desea cerrar sesión?')) {
         try {
             clearAuthData();
+            window.location.href = '/login/';
         } catch (e) {
             console.log('Error limpiando datos de sesión:', e);
         } finally {

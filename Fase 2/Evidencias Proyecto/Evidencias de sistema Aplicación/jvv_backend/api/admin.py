@@ -42,3 +42,5 @@ admin.site.register(SolicitudCertificado)
 admin.site.register(ProyectoVecinal)
 admin.site.register(Actividad)
 admin.site.register(SolicitudEspacio)
+admin.site.register(ConversacionWhatsApp)
+

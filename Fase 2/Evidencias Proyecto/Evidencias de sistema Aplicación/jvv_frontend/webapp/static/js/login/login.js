@@ -1,51 +1,3 @@
-
-if (typeof redirectByRole === 'undefined') {
-    console.warn('redirectByRole no definida, creando función de emergencia');
-    window.redirectByRole = function(role) {
-        console.log('Redirección de emergencia con rol:', role);
-        window.location.href = '/';
-    };
-}
-
-function redirectByRole(role) {
-    const userRole = (role || '').toString().toLowerCase().trim();
-    console.log('Redirigiendo con rol:', userRole);
-    
-    switch(userRole) {
-        case 'administrador':
-        case 'admin':
-        case 'administrator':
-            window.location.href = '/admin-dashboard/';
-            break;
-        case 'directivo':
-        case 'director':
-        case 'moderator':
-            window.location.href = '/directivo-dashboard/';
-            break;
-        case 'vecino':
-        case 'user':
-        case 'usuario':
-            window.location.href = '/vecino-dashboard/';
-            break;
-        default:
-            console.warn('Rol no reconocido, redirigiendo a home:', userRole);
-            window.location.href = '/';
-    }
-}
-
-function globalLogout() {
-    if (typeof safeLogout === 'function') {
-        safeLogout();
-    } else {
-        if (confirm('¿Está seguro que desea cerrar sesión?')) {
-            localStorage.clear();
-            window.location.href = '/login/';
-        }
-    }
-}
-
-
-
 class LoginManager {
     constructor() {
         this.form = document.getElementById('loginForm');
@@ -62,31 +14,17 @@ class LoginManager {
         this.checkExistingAuth();
         
         if (this.form) {
-            const newForm = this.form.cloneNode(true);
-            this.form.parentNode.replaceChild(newForm, this.form);
-            this.form = newForm;
             this.form.addEventListener('submit', (e) => this.handleLogin(e));
         }
     }
 
     checkExistingAuth() {
         try {
-            let auth;
-            if (typeof checkAuthSafe === 'function') {
-                auth = checkAuthSafe();
-            } else if (typeof checkAuthentication === 'function') {
-                auth = checkAuthentication();
-            } else {
-                auth = {
-                    isAuthenticated: localStorage.getItem('access_token') !== null,
-                    user: null,
-                    role: localStorage.getItem('user_role')
-                };
-            }
+            const token = localStorage.getItem('access_token');
+            const userRole = localStorage.getItem('user_role');
             
-            if (auth.isAuthenticated) {
-                console.log('Usuario ya autenticado, redirigiendo...');
-                redirectByRole(auth.role);
+            if (token && userRole) {
+                redirectByRole(userRole);
             }
         } catch (error) {
             console.error('Error verificando autenticación:', error);
@@ -99,7 +37,7 @@ class LoginManager {
         if (this.isSubmitting) return;
         this.isSubmitting = true;
 
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim().toLowerCase();
         const password = document.getElementById('password').value;
         const csrfToken = this.getCSRFToken();
 
@@ -109,11 +47,15 @@ class LoginManager {
             return;
         }
 
+        if (!this.isValidEmail(email)) {
+            this.showAlert('Por favor, ingrese un correo electrónico válido');
+            this.isSubmitting = false;
+            return;
+        }
+
         this.setLoading(true);
 
         try {
-            console.log('Intentando login...');
-            
             const response = await fetch(`${URL_API}api/auth/login/`, {
                 method: 'POST',
                 headers: {
@@ -127,51 +69,45 @@ class LoginManager {
             });
 
             const data = await response.json();
-            console.log('Respuesta del servidor:', response.status, data);
 
             if (response.ok) {
                 await this.handleLoginSuccess(data);
             } else {
-                const errorMsg = data.detail || data.error || 'Error en el login';
-                throw new Error(errorMsg);
+                this.handleLoginError(response.status, data);
             }
         } catch (error) {
-            console.error('Error en login:', error);
-            this.showAlert(error.message || 'Error de conexión');
+            this.showAlert('Error de conexión. Por favor, intente nuevamente.');
         } finally {
             this.setLoading(false);
             this.isSubmitting = false;
         }
     }
 
+    handleLoginError(statusCode, data) {
+        const errorMessage = data.error || 'Error en el inicio de sesión';
+        this.showAlert(errorMessage);
+        
+        // Limpiar campo de contraseña en caso de error
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+    }
+
     async handleLoginSuccess(loginData) {
         localStorage.setItem('access_token', loginData.access);
         localStorage.setItem('refresh_token', loginData.refresh);
+        localStorage.setItem('user_data', JSON.stringify(loginData.user));
+        localStorage.setItem('user_role', loginData.user.rol);
         
-        const userResponse = await fetch(`${URL_API}api/auth/me/`, {
-            headers: {
-                'Authorization': `Bearer ${loginData.access}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (userResponse.ok) {
-            const userData = await userResponse.json();
-            localStorage.setItem('user_data', JSON.stringify(userData));
-            localStorage.setItem('user_role', userData.rol);
-            
-            if (typeof safeNavbarUpdate === 'function') {
-                safeNavbarUpdate();
-            }
-            
-            this.showAlert('¡Login exitoso! Redirigiendo...', 'success');
-            
-            setTimeout(() => {
-                redirectByRole(userData.rol);
-            }, 1000);
-        } else {
-            throw new Error('Error obteniendo datos de usuario');
+        // Actualizar navbar si existe la función
+        if (typeof safeNavbarUpdate === 'function') {
+            safeNavbarUpdate();
         }
+        
+        this.showAlert('¡Login exitoso! Redirigiendo...', 'success');
+        
+        setTimeout(() => {
+            redirectByRole(loginData.user.rol);
+        }, 1000);
     }
 
     setLoading(loading) {
@@ -192,39 +128,73 @@ class LoginManager {
             this.alert.className = `alert alert-${type} mt-3`;
             this.alert.classList.remove('d-none');
             
+            this.alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
             setTimeout(() => {
-                if (this.alert) {
-                    this.alert.classList.add('d-none');
-                }
+                this.alert.classList.add('d-none');
             }, 5000);
-        } else {
-            alert(message);
         }
     }
 
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
     getCSRFToken() {
-        let csrfToken = '';
         const cookieValue = document.cookie
             .split('; ')
             .find(row => row.startsWith('csrftoken='))
             ?.split('=')[1];
         
         if (cookieValue) {
-            csrfToken = cookieValue;
-        } else {
-            const metaToken = document.querySelector('[name=csrfmiddlewaretoken]');
-            if (metaToken) {
-                csrfToken = metaToken.value;
-            }
+            return cookieValue;
         }
-        return csrfToken;
+        
+        const metaToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (metaToken) {
+            return metaToken.value;
+        }
+        
+        return '';
     }
 }
 
+// Funciones globales
+function redirectByRole(role) {
+    const userRole = (role || '').toString().toLowerCase().trim();
+    
+    switch(userRole) {
+        case 'administrador':
+        case 'admin':
+        case 'administrator':
+            window.location.href = '/admin-dashboard/';
+            break;
+        case 'directivo':
+        case 'director':
+        case 'moderator':
+            window.location.href = '/directivo-dashboard/';
+            break;
+        case 'vecino':
+        case 'user':
+        case 'usuario':
+            window.location.href = '/vecino-dashboard/';
+            break;
+        default:
+            window.location.href = '/';
+    }
+}
 
+function globalLogout() {
+    if (confirm('¿Está seguro que desea cerrar sesión?')) {
+        localStorage.clear();
+        window.location.href = '/login/';
+    }
+}
+
+// Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('loginForm')) {
-        console.log('Inicializando LoginManager...');
         window.loginManager = new LoginManager();
     }
 });
