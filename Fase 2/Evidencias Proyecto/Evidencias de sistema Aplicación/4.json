@@ -1,0 +1,951 @@
+{
+  "name": "Chatbot Interactivo Junta360",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -1488,
+        864
+      ],
+      "name": "WhatsApp Trigger",
+      "id": "5b4340a6-38e8-42be-8171-f8b50a1116ea",
+      "typeVersion": 1,
+      "webhookId": "b54a874d-5a16-4a27-ad1e-26440e27421b",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "42iw028SCv9sbqZN",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "condition-boton",
+              "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].interactive.type }}",
+              "rightValue": "button_reply",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -784,
+        1040
+      ],
+      "name": "¿Es Botón?",
+      "id": "fde4cdca-3e7e-4e3a-97c0-efcffa753542"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Eres un asistente de la Junta de Vecinos especializado en RESERVAS DE ESPACIOS.\n\nINSTRUCCIONES:\n- SOLO ayuda con reservas de espacios comunes\n- Pregunta: qué espacio necesita (cancha, sala común, etc.)\n- Pregunta: fecha y hora deseada\n- Pregunta: número de personas\n- Pregunta: motivo de la reserva\n- Verifica disponibilidad y explica el proceso\n- NO des información sobre certificados o proyectos\n\nVecino: {{ $json.nombre }}\nMensaje: {{ $json.mensaje }}\n\nResponde de manera amable y profesional.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        304
+      ],
+      "id": "1dfd9914-04fd-4a7a-a586-092f7bd167f0",
+      "name": "AI Agent - Espacio"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/674778979062079/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer EAA8v52gzSMUBP2LOXEKuN7gUjiQX76H5nHpfsfTkhqLFWEcsZA0AZAQnZAvaQ63XfLCebr3lenb63yLDRgMMrLb80IspOLEGWBZAIQgKQayUqTzKZBGau7ZAhfywpXLQ9PBFws2DXCJqse2P1ewnDIA9olQzOPJcGDGuNbuzvhIpND1lymJyMHUqK6yxIuZA7pSdrePXZA6ZApZAKXJQHpuvPppXZAtst7nL81jlczVz3qfZCkkCqyjZBYufd31sLf4YEZAtM4gmgC1o6IzeKUWvsgggMZD"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": \"{{ $('WhatsApp Trigger').item.json.messages[0].from }}\",\n  \"type\": \"interactive\", \n  \"interactive\": {\n    \"type\": \"button\",\n    \"body\": {\n      \"text\": \"¡Hola {{ $json.nombre }}! 👋\\n\\nSoy tu asistente de Junta 360 Digital. ¿En qué puedo ayudarte?\"\n    },\n    \"footer\": {\n      \"text\": \"Elige una opción:\"\n    },\n    \"action\": {\n      \"buttons\": [\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"certificado\",\n            \"title\": \"📄 Certificado\"\n          }\n        },\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"espacio\",\n            \"title\": \"🏟️ Espacio\" \n          }\n        },\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"proyecto\",\n            \"title\": \"💡 Proyecto\"\n          }\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -544,
+        1168
+      ],
+      "id": "f86072a4-d45e-4da7-9e26-988f5a470025",
+      "name": "Enviar Menú de Bienvenida"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nonpleading-contessa-overdescriptively.ngrok-free.dev/api/whatsapp/procesar/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Token wk__cV4psY10zMmQvsjljVQ33IOm5pdfQjXdi1k0kOHe7I"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefono\": \"{{ $json.telefono }}\",\n  \"tipo_solicitud\": \"espacio\",\n  \"mensaje_ai\": \"{{ $('AI Agent - Espacio').item.json.output }}\",\n  \"datos_conversacion\": \"{{ $json }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        112,
+        304
+      ],
+      "name": "Guardar Espacio en Django",
+      "id": "5000f5e5-94f7-4e83-a750-0fba7d3fcc9c",
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nonpleading-contessa-overdescriptively.ngrok-free.dev/api/whatsapp/procesar/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Token wk__cV4psY10zMmQvsjljVQ33IOm5pdfQjXdi1k0kOHe7I"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefono\": \"{{ $json.telefono }}\",\n  \"tipo_solicitud\": \"proyecto\",\n  \"resumen_ai\": \"{{ $('AI Agent - Proyecto').item.json.output }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        432,
+        640
+      ],
+      "name": "Guardar Proyecto en Django",
+      "id": "32e7733b-44ff-4506-9c7c-c3b1880818b9",
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        448
+      ],
+      "id": "561e80e4-294b-4833-acf8-fcaa3b1a1cff",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fN7ZhtD8OxhOxKtM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nonpleading-contessa-overdescriptively.ngrok-free.dev/api/whatsapp/procesar_solicitud_chat/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Token wk__cV4psY10zMmQvsjljVQ33IOm5pdfQjXdi1k0kOHe7I"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefono\": \"{{ $('WhatsApp Trigger').item.json.messages[0].from }}\",\n  \"tipo_solicitud\": \"certificado\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -320,
+        112
+      ],
+      "name": "Certificado en Django",
+      "id": "0834fb38-b433-4ad9-9f7e-c3ceddd8b99e",
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "674778979062079",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.mensaje }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        112
+      ],
+      "id": "a4b8813c-f767-4e93-af22-7d444ada615d",
+      "name": "Send message",
+      "webhookId": "9503cbe4-56da-465f-9c21-f6f30dcc9425",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "5PunIbuM9OAlZUlD",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "674778979062079",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.mensaje }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        288
+      ],
+      "id": "1fc8a5d9-0b45-4369-a171-8639b42e2c26",
+      "name": "Send message1",
+      "webhookId": "9503cbe4-56da-465f-9c21-f6f30dcc9425",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "5PunIbuM9OAlZUlD",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "674778979062079",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "=\"✅ Tu proyecto '{{ $json.titulo }}' ha sido registrado exitosamente. La directiva lo revisará pronto.\"",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        640
+      ],
+      "id": "b0d0408f-a245-4c9f-a7ef-30af1377dac6",
+      "name": "Send message2",
+      "webhookId": "9503cbe4-56da-465f-9c21-f6f30dcc9425",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "5PunIbuM9OAlZUlD",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Detectar tipo de mensaje y respuestas a AI\nconst input = $input.all()[0].json;\n\nconsole.log('🔍 Analizando mensaje...');\n\n// 1. Si es botón interactivo\nif (input.messages && input.messages[0] && input.messages[0].interactive && input.messages[0].interactive.type === 'button_reply') {\n  const boton = input.messages[0].interactive.button_reply;\n  console.log('✅ Botón detectado:', boton.id);\n  \n  return [{\n    json: {\n      telefono: input.contacts[0].wa_id,\n      mensaje: boton.id,\n      timestamp: input.timestamp,\n      es_boton: true,\n      boton_id: boton.id,\n      tipo_mensaje: 'boton_interactivo',\n      contacto: input.contacts[0].profile.name,\n      es_respuesta_ai: false\n    }\n  }];\n}\n\n// 2. Si es mensaje de texto\nif (input.messages && input.messages[0] && input.messages[0].text) {\n  const telefono = input.contacts[0].wa_id;\n  const mensaje = input.messages[0].text.body;\n  const mensajeLower = mensaje.toLowerCase();\n  \n  // Detectar si es respuesta a AI Agent\n  const esRespuestaAI = (\n    mensaje.length > 20 || // Mensajes largos\n    mensajeLower.includes('proyecto') ||\n    mensajeLower.includes('idea') ||\n    mensajeLower.includes('propuesta') ||\n    mensajeLower.includes('mejorar') ||\n    mensajeLower.includes('necesit') ||\n    mensajeLower.includes('benefici') ||\n    mensajeLower.includes('quiero hacer') ||\n    mensajeLower.includes('sugerencia')\n  );\n  \n  console.log('📝 Mensaje texto - Es respuesta AI?:', esRespuestaAI);\n  \n  return [{\n    json: {\n      telefono: telefono,\n      mensaje: mensaje,\n      timestamp: input.messages[0].timestamp,\n      es_boton: false,\n      tipo_mensaje: esRespuestaAI ? 'respuesta_proyecto' : 'texto_nuevo',\n      contacto: input.contacts[0].profile.name,\n      es_respuesta_ai: esRespuestaAI,\n      \n    }\n  }];\n}\n\n// 3. Otros tipos\nconsole.log('❌ Tipo no manejado');\nreturn [{\n  json: {\n    telefono: input.contacts[0].wa_id,\n    mensaje: 'tipo_no_manejado',\n    timestamp: input.timestamp,\n    es_boton: false,\n    tipo_mensaje: 'no_manejado',\n    contacto: input.contacts[0].profile.name,\n    es_respuesta_ai: false\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1296,
+        848
+      ],
+      "id": "816df6ef-67a4-4bf4-a0ee-414a4d95913d",
+      "name": "Tipo mensaje"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Eres un asistente especializado en proyectos vecinales para la Junta de Vecinos.\n\nANALIZA el mensaje recibido y decide:\n\n--- SI EL MENSAJE ES CORTO O ES \"proyecto\" ---\nRESPONDER:\n\"¡Excelente iniciativa! 🚀 Para registrar tu proyecto en la junta de vecinos, necesito que me cuentes en detalle:\n\n• ¿Cuál es tu idea o propuesta principal?\n• ¿Qué problema o necesidad resuelve en el barrio?\n• ¿A qué vecinos beneficiaría?\n• ¿Qué recursos, materiales o apoyo necesitaría el proyecto?\n\nPor favor, describe tu proyecto con la mayor información posible:\"\n\n--- SI EL MENSAJE ES UNA DESCRIPCIÓN LARGA ---\nCREAR JSON con esta estructura:\n{\n  \"titulo\": \"Título breve y claro (máximo 6 palabras)\",\n  \"descripcion\": \"Descripción completa que incluya: 1) Problema que resuelve, 2) Vecinos beneficiados, 3) Recursos necesarios, 4) Beneficios para la comunidad\"\n}\n--- EJEMPLOS ---\nInput: \"proyecto\"\nOutput: \"¡Excelente iniciativa! 🚀 Para registrar tu proyecto...\"\n\nInput: \"Quiero poner bancas en el parque para los abuelos que no tienen donde sentarse\"\nOutput: {\n\"titulo\": \"Bancas para parque principal\",\n\"descripcion\": \"Instalación de 5 bancas en el parque para resolver la falta de lugares de descanso para adultos mayores. Beneficiaría a aproximadamente 50 vecinos mayores y familias con niños. Recursos needed: 5 bancas de madera resistente, cemento para bases y grupo de voluntarios para instalación. Mejora la calidad de vida y fomenta la socialización en el espacio público.\"\n}\n\n--- REGLAS ---\n\nPara mensajes de 3 palabras o menos: PEDIR MÁS DETALLES\n\nPara mensajes de 4+ palabras con contenido sustancial: CREAR JSON\n\nLos títulos deben ser claros y específicos\n\nLas descripciones deben ser completas pero concisas\n\nMENSAJE ACTUAL: \"{{ $json.mensaje }}\"\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        656
+      ],
+      "id": "73ec5cab-adf3-4c20-bf1b-4e08ef146aef",
+      "name": "AI Agent - Proyecto1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        896
+      ],
+      "id": "8b503379-a42c-49f9-bfe7-6f0f4c35a7e9",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fN7ZhtD8OxhOxKtM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "674778979062079",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        960
+      ],
+      "id": "b2ae1dfc-ff74-4f3c-9203-7cd903620177",
+      "name": "Send message3",
+      "webhookId": "9503cbe4-56da-465f-9c21-f6f30dcc9425",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "5PunIbuM9OAlZUlD",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "19788006-15fe-4713-b23c-816595b1424d",
+              "leftValue": "={{ $json.es_json_valido }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        656
+      ],
+      "id": "b7e81d5c-ec5b-4aa7-9529-5245ca9625f5",
+      "name": "¿es_json_valido?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Function Node después del AI Agent\nconst aiOutput = $input.all()[0].json;\n\nconsole.log('🔍 Analizando salida del AI Agent:', aiOutput);\n\n// Verificar si la salida es un JSON válido\nconst outputText = aiOutput.output ? aiOutput.output.trim() : '';\n\nif (outputText.startsWith('{') && outputText.endsWith('}')) {\n  console.log('✅ AI devolvió JSON - Guardar en Django');\n  return [{\n    json: {\n      ...aiOutput,\n      es_json_valido: true,\n      tipo_respuesta: 'json_proyecto',\n      mensaje_ai: outputText\n    }\n  }];\n} else {\n  console.log('📝 AI devolvió texto - Enviar pregunta al vecino');\n  return [{\n    json: {\n      ...aiOutput,\n      es_json_valido: false,\n      tipo_respuesta: 'pregunta_ai',\n      mensaje_ai: outputText\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        608
+      ],
+      "id": "2bfe8399-94c0-4b4e-9076-f93a484855df",
+      "name": "Detectar Tipo"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "contextWindowLength": 6
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        912
+      ],
+      "id": "e83704e2-db56-4dbe-9249-486b973e985c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nonpleading-contessa-overdescriptively.ngrok-free.dev/api/whatsapp/estado_conversacion/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Token wk__cV4psY10zMmQvsjljVQ33IOm5pdfQjXdi1k0kOHe7I"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefono\": \"{{ $json.telefono }}\",\n    \"accion\": \"obtener\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1072,
+        832
+      ],
+      "name": "Verificar Estado Conversaciones",
+      "id": "261e8ea5-e942-4bca-853c-b821ffde8752",
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "condition-vecino",
+              "leftValue": "={{ $json.tiene_conversacion }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -912,
+        848
+      ],
+      "id": "20d16310-32bd-4ea0-a502-48efda404987",
+      "name": "¿tiene_conversacion?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nonpleading-contessa-overdescriptively.ngrok-free.dev/api/whatsapp/estado_conversacion/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Token wk__cV4psY10zMmQvsjljVQ33IOm5pdfQjXdi1k0kOHe7I"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefono\": \"{{ $json.telefono }}\",\n    \"accion\": \"actualizar\",\n    \"estado\": \"{{ $json.boton_id }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -608,
+        912
+      ],
+      "name": "Actualizar Conversación",
+      "id": "c346a7cc-b64c-4abf-8949-8a1a9fbe81b6",
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Tipo mensaje').item.json.boton_id }}",
+                    "rightValue": "certificado",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ea606987-e27e-4918-8bb4-07450a80d443"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a3ce4d63-1c55-4ea0-871a-d257dc03f62d",
+                    "leftValue": "={{ $('Tipo mensaje').item.json.boton_id }}",
+                    "rightValue": "espacio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "daf44b46-abbf-4215-910b-8c115fedd8c5",
+                    "leftValue": "={{ $('Tipo mensaje').item.json.boton_id }}",
+                    "rightValue": "proyecto",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -480,
+        720
+      ],
+      "id": "780ac5a5-6113-4455-bc0a-6bcc8a8f522c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.estado }}",
+                    "rightValue": " proyecto",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8d6206cc-edc1-40cf-b412-e51f7bd975da"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e9cc10c7-5048-4330-9793-1be8d70864bb",
+                    "leftValue": "={{ $json.estado }}",
+                    "rightValue": " espacio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f877f895-fdb7-45c0-bae2-6f2b045db03a",
+                    "leftValue": "={{ $json.estado }} ",
+                    "rightValue": "certificado",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -672,
+        704
+      ],
+      "id": "b3739d71-39af-44c3-883b-9b0859ee2ae5",
+      "name": "Switch1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Tipo mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Es Botón?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar Conversación",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar Menú de Bienvenida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Espacio": {
+      "main": [
+        [
+          {
+            "node": "Guardar Espacio en Django",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Espacio",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Certificado en Django": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Proyecto en Django": {
+      "main": [
+        [
+          {
+            "node": "Send message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tipo mensaje": {
+      "main": [
+        [
+          {
+            "node": "Verificar Estado Conversaciones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Espacio en Django": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Proyecto1": {
+      "main": [
+        [
+          {
+            "node": "Detectar Tipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Proyecto1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿es_json_valido?": {
+      "main": [
+        [
+          {
+            "node": "Guardar Proyecto en Django",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detectar Tipo": {
+      "main": [
+        [
+          {
+            "node": "¿es_json_valido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - Proyecto1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Estado Conversaciones": {
+      "main": [
+        [
+          {
+            "node": "¿tiene_conversacion?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿tiene_conversacion?": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "¿Es Botón?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar Conversación": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Certificado en Django",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Espacio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Proyecto1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Certificado en Django",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Espacio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Proyecto1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9588e04b-b3b1-4e27-932d-228d61730839",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385b82bcdf147bc50f5da44714ecdbc5410272e6e0b2d7d655c8c4bb01caeafd"
+  },
+  "id": "oWy7pkx0G3lJEljS",
+  "tags": []
+}

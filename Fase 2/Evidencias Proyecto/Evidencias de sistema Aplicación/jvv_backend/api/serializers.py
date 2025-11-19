@@ -329,3 +329,54 @@ class NoticiaEditSerializer(serializers.ModelSerializer):
         return instance
 
 
+class NoticiaScraperSerializer(serializers.Serializer):
+    """
+    Serializador utilizado para validar los datos entrantes desde el scraper.
+    """
+    titulo = serializers.CharField(max_length=200)
+    link_imagen = serializers.URLField(required=False, allow_blank=True)
+    contenido_completo = serializers.CharField()
+    fecha_noticia = serializers.DateField()
+
+
+
+class JuntaVecinosSimpleSerializer(serializers.ModelSerializer):
+    firma_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = JuntaVecinos
+        fields = ['nombre', 'comuna', 'region', 'firma_url']
+
+    def get_firma_url(self, obj):
+        request = self.context.get('request')
+        if obj.firma:
+            return request.build_absolute_uri(obj.firma.url)
+        return None
+    
+class PresidenteSerializer(serializers.ModelSerializer):
+    firma_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'nombre', 'apellido', 'rut', 'firma_url']
+
+    def get_firma_url(self, obj):
+        junta = JuntaVecinos.objects.first()
+        request = self.context.get('request')
+        if junta and junta.firma:
+            return request.build_absolute_uri(junta.firma.url)
+        return None
+class DirectivoSerializer(serializers.ModelSerializer):
+    nombre_completo = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'nombre_completo', 'rut']
+
+    def get_nombre_completo(self, obj):
+        return obj.get_full_name()
+
+class ConfiguracionPresidenteSerializer(serializers.Serializer):
+    junta = JuntaVecinosSimpleSerializer()
+    presidente_actual = PresidenteSerializer(allow_null=True)
+    directivos_disponibles = DirectivoSerializer(many=True)

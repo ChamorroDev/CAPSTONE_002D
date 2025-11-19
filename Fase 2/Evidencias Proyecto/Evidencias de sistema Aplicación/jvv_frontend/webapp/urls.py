@@ -38,4 +38,6 @@ urlpatterns = [
     path('gestion_espacios/', views.gestion_espacios, name='gestion_espacios'),
     path('edicion_espacios/', views.edicion_espacios, name='edicion_espacios'),
     path('gestion_eventos/', views.gestion_eventos, name='gestion_eventos'),
+    path("presidencia/", views.gestion_presidencia, name="gestion_presidencia")
+
 ]

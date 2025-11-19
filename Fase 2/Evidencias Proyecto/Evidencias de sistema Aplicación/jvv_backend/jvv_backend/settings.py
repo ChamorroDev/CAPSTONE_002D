@@ -30,13 +30,17 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     'frontend',
-    'nonpleading-contessa-overdescriptively.ngrok-free.dev'
+    # ⬅️ Tu frontend (origen)
+    'nonpleading-contessa-overdescriptively.ngrok-free.dev', 
+    '192.168.2.100',
+    # 🎯 DEBES AÑADIR EL DOMINIO AL QUE RESPONDE DJANGO (devtunnels.ms)
+    '155vgtsl-8000.brs.devtunnels.ms', # <-- ¡ESTO FALTA!
+    '155vgtsl-8080.brs.devtunnels.ms', # <-- ¡ESTO FALTA!
+
 ]
-#########################################
 
 # No mostrar errores detallados #BORRAR DESPUES DE PRUEBAS
-DEBUG_PROPAGATE_EXCEPTIONS = False
-
+#DEBUG_PROPAGATE_EXCEPTIONS = False
 
 
 # Configuración de CORS
@@ -45,7 +49,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://frontend:8080", 
     "https://junta360digital.app.n8n.cloud",
-    "https://nonpleading-contessa-overdescriptively.ngrok-free.dev"
+    "https://nonpleading-contessa-overdescriptively.ngrok-free.dev",
+
+]
+
+
+## Configuración de CSRF para que tu frontend sea un origen de confianza para peticiones POST
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8080',
+    'http://localhost:8080',
+    'https://nonpleading-contessa-overdescriptively.ngrok-free.dev',
+
 ]
 
 
@@ -53,12 +67,6 @@ CORS_ALLOWED_ORIGINS = [
 WEBHOOK_TOKEN = 'wk__cV4psY10zMmQvsjljVQ33IOm5pdfQjXdi1k0kOHe7I'
 
 
-# Configuración de CSRF para que tu frontend sea un origen de confianza para peticiones POST
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8080',
-    'http://localhost:8080',
-
-]
 # Application definition
 
 INSTALLED_APPS = [
@@ -83,8 +91,8 @@ CACHES = {
 }
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

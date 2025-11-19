@@ -34,6 +34,15 @@ class JuntaVecinos(models.Model):
     region = models.CharField(max_length=100)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     activa = models.BooleanField(default=True)
+    presidente = models.ForeignKey(
+        "CustomUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="junta_presidente"
+    )
+    firma = models.ImageField(upload_to="firmas/", null=True, blank=True)
+
     
     def __str__(self):
         return self.nombre

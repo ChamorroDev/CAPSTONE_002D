@@ -47,6 +47,7 @@ class NoticiaDetalle {
 
             if (response.ok) {
                 const noticia = await response.json();
+                console.log('Noticia cargada:', noticia);
                 this.mostrarNoticia(noticia);
             } else if (response.status === 404) {
                 this.mostrarError('Noticia no encontrada');

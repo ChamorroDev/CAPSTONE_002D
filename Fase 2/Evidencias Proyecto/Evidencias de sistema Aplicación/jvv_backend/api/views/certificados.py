@@ -87,7 +87,7 @@ def aprobar_certificado(request, certificado_id):
                 N8N_WEBHOOK_URL,
                 data=json.dumps(data_to_send),
                 headers={'Content-Type': 'application/json'},
-                timeout=0.1
+                timeout=10
             )
         except Exception as e:
             print(f"Error al enviar notificación a n8n: {e}")
@@ -97,6 +97,7 @@ def aprobar_certificado(request, certificado_id):
     except SolicitudCertificado.DoesNotExist:
         return Response({'error': 'Solicitud no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
+        print(f"Error en aprobar_certificado: {e}")
         return Response({'error': f"Ocurrió un error al procesar la solicitud: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])

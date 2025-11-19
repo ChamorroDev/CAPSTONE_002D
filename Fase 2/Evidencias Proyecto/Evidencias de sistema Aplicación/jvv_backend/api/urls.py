@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import authentication, usuarios, noticias, certificados, espacios, actividades, proyectos, dashboard, perfiles,utils
+from .views import authentication, usuarios, noticias, certificados, espacios, actividades, proyectos, dashboard, perfiles,utils,junta_de_vecinos
 
 # Para vistas basadas en clase
 router = DefaultRouter()
@@ -41,6 +41,9 @@ urlpatterns = [
     path('api/directivo/noticias_imagenes/', noticias.subir_imagen_noticia, name='subir_imagen_noticia'),
     path('api/directivo/noticias_imagenes/<int:pk>/', noticias.eliminar_imagen_noticia, name='eliminar_imagen_noticia'),
     path('api/directivo/noticias/<int:pk>/set_imagen_principal/', noticias.set_imagen_principal, name='set_imagen_principal'),
+        
+    #Sracraper noticias
+    path('api/directivo/noticias/cargar_desde_vitacura/', noticias.NoticiaCargarAPIView.as_view(), name='cargar_noticias_vitacura'),
     
     # Certificados
     path('api/certificados/solicitar/', certificados.solicitar_certificado, name='solicitar_certificado'),
@@ -122,6 +125,8 @@ urlpatterns = [
     path('api/whatsapp/procesar_solicitud_chat/', utils.procesar_solicitud , name='procesar_solicitud_chat'),
     path('api/whatsapp/estado_conversacion/', utils.estado_conversacion , name='estado_conversacion'),
 
-
-    
+    # Presidencias - Directivo
+    path('api/directivo/establecer_presidente/', junta_de_vecinos.establecer_presidente, name='establecer_presidente'),
+    path('api/directivo/actualizar_firma_presidente/', junta_de_vecinos.actualizar_firma, name='actualizar_firma_presidente'),
+    path('api/directivo/obtener_firma_presidente/', junta_de_vecinos.obtener_firma_presidente, name='obtener_firma'),
 ]

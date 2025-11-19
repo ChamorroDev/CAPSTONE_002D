@@ -68,3 +68,5 @@ def gestion_espacios(request):
     return render(request, 'directivo/espacios/dashboard_espacios.html')
 def gestion_eventos(request):
     return render(request, 'directivo/eventos/gestion_eventos.html')
+def gestion_presidencia(request):
+    return render(request, "directivo/presidencia/editar_presidencia.html")

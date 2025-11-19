@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel de Directivo - Junta de Vecinos{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/directivo/presidencia.css' %}">
+
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="bi bi-person-badge-fill text-dark me-2"></i>
+        Gestión de Presidencia
+    </h2>
+
+    <!-- INFORMACIÓN EXPLICATIVA -->
+    <div class="alert alert-info">
+        <h5>Gestión de Presidencia</h5>
+        <p>Desde esta sección, puedes ver quién es el presidente actual, asignar un nuevo presidente y actualizar la firma oficial. 
+        Todos los cambios se reflejarán inmediatamente en la documentación y formularios oficiales de la Junta de Vecinos.</p>
+    </div>
+
+    <!-- DATOS DEL PRESIDENTE ACTUAL -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Presidente Actual</h5>
+        </div>
+        <div class="card-body" id="presidente-info">
+            <p>Cargando información...</p>
+        </div>
+    </div>
+
+    <!-- CÓMO CAMBIAR AL PRESIDENTE -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Cómo cambiar al presidente</h5>
+        </div>
+        <div class="card-body">
+            <ol>
+                <li>Selecciona un directivo de la lista desplegable como nuevo presidente.</li>
+                <li>Haz clic en "Asignar Presidente".</li>
+                <li>Si corresponde, sube la nueva firma oficial del presidente mediante el botón "Subir Firma".</li>
+                <li>Verifica que los datos actualizados se muestran correctamente en la sección "Presidente Actual".</li>
+            </ol>
+            <small class="text-muted">⚠ Los cambios son definitivos y se aplicarán en todos los documentos oficiales.</small>
+        </div>
+    </div>
+
+    <!-- CAMBIAR PRESIDENTE -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Cambiar Presidente</h5>
+        </div>
+        <div class="card-body">
+            <label class="form-label">Seleccionar nuevo presidente:</label>
+            <select class="form-select" id="directivos-select"></select>
+
+            <button class="btn btn-primary mt-3" id="asignar-presidente-btn">
+                <i class="bi bi-check-circle me-2"></i>Asignar Presidente
+            </button>
+        </div>
+    </div>
+
+    <!-- ACTUALIZAR FIRMA -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Actualizar Firma del Presidente</h5>
+        </div>
+        <div class="card-body">
+            <label class="form-label">Subir nueva firma (PNG recomendado):</label>
+            <input type="file" class="form-control" id="firma-file">
+
+            <button class="btn btn-success mt-3" id="actualizar-firma-btn">
+                <i class="bi bi-upload me-2"></i>Subir Firma
+            </button>
+        </div>
+    </div>
+
+    <!-- ADVERTENCIAS -->
+    <div class="alert alert-warning">
+        <strong>Importante:</strong> 
+        <ul class="mb-0">
+            <li>Asegúrate de que la persona seleccionada está autorizada para asumir la presidencia.</li>
+            <li>El archivo de firma debe ser claro y en formato PNG para garantizar legibilidad.</li>
+        </ul>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/directivo/presidencia/editar_presidencia.js' %}"></script>
+{% endblock %}
+
