@@ -68,10 +68,10 @@ Antes de instalar el proyecto, asegúrate de tener instaladas las siguientes her
 ## 📂 Estructura del Repositorio
 
 ```
-├── /frontend       # Código del cliente (templates y vistas de Django)
-├── /backend        # API y lógica de negocio (modelos y servicios de Django)
-├── /n8n            # Archivos de configuración y flujos JSON de n8n
-└── README.md       # Documento principal del proyecto
+├── /frontend        # Código del cliente (templates y vistas de Django)
+├── /backend         # API y lógica de negocio (modelos y servicios de Django)
+├── /backend/N8NJSON # Flujos JSON de n8n
+└── README.md        # Documento principal del proyecto
 ```
 
 ---
@@ -135,7 +135,7 @@ docker-compose up -d
 2. Dirígete a **Workflows → New → Import from JSON**  
 3. Importa el archivo:
    ```
-   n8n/flujos_junta360.json
+   backend/N8NJSON.json
    ```
    Este contiene la lógica de **automatización de certificados y notificaciones**.
 
